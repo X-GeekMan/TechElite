@@ -971,15 +971,50 @@
         navbar.classList.remove("scrolled");
       }
     });
-    // 4. LeanCloud API configuration
-    const APP_ID = "IJVvwum1w9ZG6FJLZmL7W6il-MdYXbMMI"; // Replace with your LeanCloud App ID
-    const APP_KEY = "JWhIjvNaRESRDqffLyjUnc2S"; // Replace with your LeanCloud App Key
-    AV.initialize(APP_ID, APP_KEY);
+    
+    // 检测用户地理位置并选择合适的LeanCloud配置
+    async function detectUserRegion() {
+      try {
+        // 尝试通过IP地址获取用户位置信息
+        const response = await fetch('https://ipapi.co/json/');
+        const data = await response.json();
+        // 判断是否在中国大陆
+        const isInChina = data.country_code === 'CN';
+        // 根据用户位置选择不同的LeanCloud配置
+        const LEANCLOUD_CONFIG = isInChina ? {
+          APP_ID: "vkX0bY797zcpmhhDtIninDec-gzGzoHsz", // 国内应用ID
+          APP_KEY: "QF1P8lX41mKQheIEWETjIMLD",// 国内应用Key
+          SERVER_URL: "https://vkx0by79.lc-cn-n1-shared.com"
+        } : {
+          APP_ID: "IJVvwum1w9ZG6FJLZmL7W6il-MdYXbMMI", /// 国际应用ID
+          APP_KEY: "JWhIjvNaRESRDqffLyjUnc2S",// 国际应用Key
+          SERVER_URL: "https://ijvvwum1.api.lncldglobal.com"
+        };
+        
+        // 初始化LeanCloud
+        AV.initialize(LEANCLOUD_CONFIG.APP_ID, LEANCLOUD_CONFIG.APP_KEY);
+        
+        // 更新访问计数
+        updateVisitCounts();
+        
+      } catch (error) {
+        console.error("无法获取用户位置信息，使用默认配置:", error);
+        // 如果无法获取位置信息，使用国内配置作为默认
+        const DEFAULT_CONFIG = {
+          APP_ID: "IJVvwum1w9ZG6FJLZmL7W6il-MdYXbMMI",
+          APP_KEY: "JWhIjvNaRESRDqffLyjUnc2S"
+        };
+        AV.initialize(DEFAULT_CONFIG.APP_ID, DEFAULT_CONFIG.APP_KEY);
+        updateVisitCounts();
+      }
+    }
+    
     // Function to get today's date in YYYY-MM-DD format
     function getTodayDate() {
       const today = new Date();
       return today.toISOString().split("T")[0];
     }
+    
     // Function to update visit counts in LeanCloud
     async function updateVisitCounts() {
       // 获取当前时间并转换为北京时区(UTC+8)的日期
@@ -1045,8 +1080,9 @@
       }
     }
 
-    // Initialize visit counts
-    updateVisitCounts();
+    // 检测用户区域并初始化LeanCloud
+    detectUserRegion();
+    
     // 4. EmailJS 核心配置与表单提交逻辑
     document.addEventListener("DOMContentLoaded", function () {
       // --------------------------
