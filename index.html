@@ -136,6 +136,27 @@
           opacity: 0;
           visibility: hidden;
         }
+        /* 语言切换按钮样式 */
+        .lang-switch {
+          display: flex;
+          align-items: center;
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 20px;
+          padding: 4px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+        .lang-option {
+          padding: 4px 10px;
+          border-radius: 16px;
+          font-size: 0.875rem;
+          transition: all 0.3s ease;
+        }
+        .lang-active {
+          background: #00b8d4;
+          color: #051c40;
+          font-weight: 500;
+        }
       }
     </style>
   <style>
@@ -289,11 +310,16 @@
         TechElite<span class="text-accent"></span>
       </h1>
     </div>
-    <div class="hidden md:flex space-x-8">
-      <a href="#product" class="text-light hover:text-accent transition-colors">产品展示</a>
-      <a href="#parameters" class="text-light hover:text-accent transition-colors">技术参数</a>
-      <a href="#demonstrations" class="text-light hover:text-accent transition-colors">视频演示</a>
-      <a href="#contact" class="text-light hover:text-accent transition-colors">联系方式</a>
+    <div class="hidden md:flex space-x-8 items-center">
+      <a href="#product" class="text-light hover:text-accent transition-colors" data-i18n="nav.product">产品展示</a>
+      <a href="#parameters" class="text-light hover:text-accent transition-colors" data-i18n="nav.parameters">技术参数</a>
+      <a href="#demonstrations" class="text-light hover:text-accent transition-colors" data-i18n="nav.demonstrations">视频演示</a>
+      <a href="#contact" class="text-light hover:text-accent transition-colors" data-i18n="nav.contact">联系方式</a>
+      <!-- 语言切换按钮 -->
+      <div class="lang-switch ml-4" id="lang-switch">
+        <div class="lang-option lang-active" data-lang="zh">中文</div>
+        <div class="lang-option" data-lang="en">EN</div>
+      </div>
     </div>
     <button class="md:hidden text-2xl">
       <i class="fa fa-bars"></i>
@@ -307,19 +333,19 @@
       style="animation-delay: 2s"></div>
     <div class="container mx-auto px-6 z-10 text-center">
       <h1 class="text-[clamp(2.5rem,6vw,5rem)] font-bold mb-6 leading-tight text-glow">
-        鹰眼系列 <span class="text-accent">X</span><br />60GHz毫米波雷达
+        <span data-i18n="hero.title1">鹰眼系列</span> <span class="text-accent">X</span><br /><span data-i18n="hero.title2">60GHz毫米波雷达</span>
       </h1>
-      <p class="text-[clamp(1rem,2vw,1.25rem)] max-w-3xl mx-auto mb-10 text-light/80">
+      <p class="text-[clamp(1rem,2vw,1.25rem)] max-w-3xl mx-auto mb-10 text-light/80" data-i18n="hero.subtitle">
         精准感知，智能探测，引领雷达技术新革命
       </p>
-      <p class="text-[clamp(1rem,2vw,1.25rem)] max-w-3xl mx-auto mb-6 text-light/80">
+      <p class="text-[clamp(1rem,2vw,1.25rem)] max-w-3xl mx-auto mb-6 text-light/80" data-i18n="hero.support">
         支持两轮电动车 三轮电动车 摩托车 汽车
       </p>
       <div class="flex flex-col sm:flex-row justify-center gap-4">
         <a href="#product"
-          class="px-8 py-3 bg-accent text-dark font-semibold rounded-full hover:bg-accent/90 transition-all shadow-lg shadow-accent/20">了解产品</a>
+          class="px-8 py-3 bg-accent text-dark font-semibold rounded-full hover:bg-accent/90 transition-all shadow-lg shadow-accent/20" data-i18n="hero.cta1">了解产品</a>
         <a href="#contact"
-          class="px-8 py-3 bg-transparent border-2 border-accent text-accent font-semibold rounded-full hover:bg-accent/10 transition-all">联系我们</a>
+          class="px-8 py-3 bg-transparent border-2 border-accent text-accent font-semibold rounded-full hover:bg-accent/10 transition-all" data-i18n="hero.cta2">联系我们</a>
       </div>
     </div>
     <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
@@ -330,14 +356,14 @@
   <section id="product" class="py-20 relative">
     <div class="container mx-auto px-6">
       <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-16 text-center">
-        <span class="inline-block border-b-4 border-accent pb-2">产品展示</span>
+        <span class="inline-block border-b-4 border-accent pb-2" data-i18n="product.title">产品展示</span>
       </h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div class="image-container shadow-2xl shadow-primary/20">
           <img src="radar_top.webp" alt="鹰眼X毫米波雷达正面视图" class="w-full h-80 object-cover" loading="lazy" />
           <div class="image-overlay">
-            <h3 class="text-xl font-semibold mb-2 text-accent">正面视图</h3>
-            <p class="text-sm text-light/80">
+            <h3 class="text-xl font-semibold mb-2 text-accent" data-i18n="product.card1.title">正面视图</h3>
+            <p class="text-sm text-light/80" data-i18n="product.card1.desc">
               精密设计，紧凑结构，适应多种安装环境
             </p>
           </div>
@@ -345,8 +371,8 @@
         <div class="image-container shadow-2xl shadow-primary/20">
           <img src="radar_bottom.webp" alt="鹰眼X毫米波雷达侧面视图" class="w-full h-80 object-cover" loading="lazy" />
           <div class="image-overlay">
-            <h3 class="text-xl font-semibold mb-2 text-accent">侧面视图</h3>
-            <p class="text-sm text-light/80">
+            <h3 class="text-xl font-semibold mb-2 text-accent" data-i18n="product.card2.title">侧面视图</h3>
+            <p class="text-sm text-light/80" data-i18n="product.card2.desc">
               超薄机身，先进散热设计，确保稳定运行
             </p>
           </div>
@@ -354,8 +380,8 @@
         <div class="image-container shadow-2xl shadow-primary/20">
           <img src="pcb.webp" alt="鹰眼X毫米波雷达应用场景" class="w-full h-80 object-cover" loading="lazy" />
           <div class="image-overlay">
-            <h3 class="text-xl font-semibold mb-2 text-accent">应用场景</h3>
-            <p class="text-sm text-light/80">
+            <h3 class="text-xl font-semibold mb-2 text-accent" data-i18n="product.card3.title">应用场景</h3>
+            <p class="text-sm text-light/80" data-i18n="product.card3.desc">
               多场景适配，全方位智能感知解决方案
             </p>
           </div>
@@ -367,90 +393,90 @@
   <section id="parameters" class="py-20 relative bg-primary/20">
     <div class="container mx-auto px-6">
       <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-16 text-center">
-        <span class="inline-block border-b-4 border-accent pb-2">技术参数</span>
+        <span class="inline-block border-b-4 border-accent pb-2" data-i18n="parameters.title">技术参数</span>
       </h2>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div class="param-card bg-dark/60 backdrop-blur-sm p-6 rounded-xl border border-accent/20">
           <div class="flex items-center mb-4">
             <i class="fa fa-wifi text-accent text-xl mr-3"></i>
-            <h3 class="text-xl font-semibold">工作频率</h3>
+            <h3 class="text-xl font-semibold" data-i18n="parameters.card1.title">工作频率</h3>
           </div>
-          <p class="text-light/80">
+          <p class="text-light/80" data-i18n="parameters.card1.desc">
             60GHz频段，符合国际通用标准，抗干扰能力强
           </p>
         </div>
         <div class="param-card bg-dark/60 backdrop-blur-sm p-6 rounded-xl border border-accent/20">
           <div class="flex items-center mb-4">
             <i class="fa fa-arrows-alt text-accent text-xl mr-3"></i>
-            <h3 class="text-xl font-semibold">探测范围</h3>
+            <h3 class="text-xl font-semibold" data-i18n="parameters.card2.title">探测范围</h3>
           </div>
-          <p class="text-light/80">
+          <p class="text-light/80" data-i18n="parameters.card2.desc">
             0.5米 - 50米，人体探测精度±0.5米，车辆探测精度±1米
           </p>
         </div>
         <div class="param-card bg-dark/60 backdrop-blur-sm p-6 rounded-xl border border-accent/20">
           <div class="flex items-center mb-4">
             <i class="fa fa-refresh text-accent text-xl mr-3"></i>
-            <h3 class="text-xl font-semibold">测速范围</h3>
+            <h3 class="text-xl font-semibold" data-i18n="parameters.card3.title">测速范围</h3>
           </div>
-          <p class="text-light/80">6km/h至200km/h，覆盖各类交通场景需求</p>
+          <p class="text-light/80" data-i18n="parameters.card3.desc">6km/h至200km/h，覆盖各类交通场景需求</p>
         </div>
         <div class="param-card bg-dark/60 backdrop-blur-sm p-6 rounded-xl border border-accent/20">
           <div class="flex items-center mb-4">
             <i class="fa fa-bolt text-accent text-xl mr-3"></i>
-            <h3 class="text-xl font-semibold">工作电压</h3>
+            <h3 class="text-xl font-semibold" data-i18n="parameters.card4.title">工作电压</h3>
           </div>
-          <p class="text-light/80">DC 5V-24V宽电压设计，适应多种供电环境</p>
+          <p class="text-light/80" data-i18n="parameters.card4.desc">DC 5V-24V宽电压设计，适应多种供电环境</p>
         </div>
         <div class="param-card bg-dark/60 backdrop-blur-sm p-6 rounded-xl border border-accent/20">
           <div class="flex items-center mb-4">
             <i class="fa fa-thermometer-half text-accent text-xl mr-3"></i>
-            <h3 class="text-xl font-semibold">工作温度</h3>
+            <h3 class="text-xl font-semibold" data-i18n="parameters.card5.title">工作温度</h3>
           </div>
-          <p class="text-light/80">-30℃至+80℃，极端环境下稳定工作</p>
+          <p class="text-light/80" data-i18n="parameters.card5.desc">-30℃至+80℃，极端环境下稳定工作</p>
         </div>
         <div class="param-card bg-dark/60 backdrop-blur-sm p-6 rounded-xl border border-accent/20">
           <div class="flex items-center mb-4">
             <i class="fa fa-exchange text-accent text-xl mr-3"></i>
-            <h3 class="text-xl font-semibold">数据接口</h3>
+            <h3 class="text-xl font-semibold" data-i18n="parameters.card6.title">数据接口</h3>
           </div>
-          <p class="text-light/80">UART, I2C, SPI, 支持多种通信协议</p>
+          <p class="text-light/80" data-i18n="parameters.card6.desc">UART, I2C, SPI, 支持多种通信协议</p>
         </div>
       </div>
       <div class="mt-16 overflow-hidden rounded-xl border border-accent/20">
         <table class="w-full">
           <thead>
             <tr class="bg-primary/30">
-              <th class="py-4 px-6 text-left">参数名称</th>
-              <th class="py-4 px-6 text-left">详细规格</th>
-              <th class="py-4 px-6 text-left">参数名称</th>
-              <th class="py-4 px-6 text-left">详细规格</th>
+              <th class="py-4 px-6 text-left" data-i18n="parameters.table.header1">参数名称</th>
+              <th class="py-4 px-6 text-left" data-i18n="parameters.table.header2">详细规格</th>
+              <th class="py-4 px-6 text-left" data-i18n="parameters.table.header3">参数名称</th>
+              <th class="py-4 px-6 text-left" data-i18n="parameters.table.header4">详细规格</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-accent/10">
             <tr class="hover:bg-primary/10 transition-colors">
-              <td class="py-4 px-6">天线波束宽度</td>
-              <td class="py-4 px-6">水平80°，垂直60°</td>
-              <td class="py-4 px-6">发射功率</td>
-              <td class="py-4 px-6">11dBm</td>
+              <td class="py-4 px-6" data-i18n="parameters.table.row1.col1">天线波束宽度</td>
+              <td class="py-4 px-6" data-i18n="parameters.table.row1.col2">水平80°，垂直60°</td>
+              <td class="py-4 px-6" data-i18n="parameters.table.row1.col3">发射功率</td>
+              <td class="py-4 px-6" data-i18n="parameters.table.row1.col4">11dBm</td>
             </tr>
             <tr class="hover:bg-primary/10 transition-colors">
-              <td class="py-4 px-6">探测距离</td>
-              <td class="py-4 px-6">0.1-15M(人体)，50M(车辆)</td>
-              <td class="py-4 px-6">响应时间</td>
-              <td class="py-4 px-6">>100ms</td>
+              <td class="py-4 px-6" data-i18n="parameters.table.row2.col1">探测距离</td>
+              <td class="py-4 px-6" data-i18n="parameters.table.row2.col2">0.1-15M(人体)，50M(车辆)</td>
+              <td class="py-4 px-6" data-i18n="parameters.table.row2.col3">响应时间</td>
+              <td class="py-4 px-6" data-i18n="parameters.table.row2.col4">>100ms</td>
             </tr>
             <tr class="hover:bg-primary/10 transition-colors">
-              <td class="py-4 px-6">探测盲区</td>
-              <td class="py-4 px-6">0.5M</td>
-              <td class="py-4 px-6">探测精度</td>
-              <td class="py-4 px-6">0.5M</td>
+              <td class="py-4 px-6" data-i18n="parameters.table.row3.col1">探测盲区</td>
+              <td class="py-4 px-6" data-i18n="parameters.table.row3.col2">0.5M</td>
+              <td class="py-4 px-6" data-i18n="parameters.table.row3.col3">探测精度</td>
+              <td class="py-4 px-6" data-i18n="parameters.table.row3.col4">0.5M</td>
             </tr>
             <tr class="hover:bg-primary/10 transition-colors">
-              <td class="py-4 px-6">测速范围</td>
-              <td class="py-4 px-6">6-90KM/H</td>
-              <td class="py-4 px-6">工作电流</td>
-              <td class="py-4 px-6">30mA</td>
+              <td class="py-4 px-6" data-i18n="parameters.table.row4.col1">测速范围</td>
+              <td class="py-4 px-6" data-i18n="parameters.table.row4.col2">6-90KM/H</td>
+              <td class="py-4 px-6" data-i18n="parameters.table.row4.col3">工作电流</td>
+              <td class="py-4 px-6" data-i18n="parameters.table.row4.col4">30mA</td>
             </tr>
           </tbody>
         </table>
@@ -461,35 +487,35 @@
   <section id="demonstrations" class="py-20 relative">
     <div class="container mx-auto px-6">
       <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-16 text-center">
-        <span class="inline-block border-b-4 border-accent pb-2">视频演示</span>
+        <span class="inline-block border-b-4 border-accent pb-2" data-i18n="demonstrations.title">视频演示</span>
       </h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
         <div class="video-container">
           <div class="aspect-video bg-dark/40">
             <video controls poster="pic1.webp" class="w-full h-full object-contain" preload="none">
               <source src="video1.webm" type="video/mp4" />
-              你的浏览器不支持视频播放
+              <span data-i18n="video.unsupported">你的浏览器不支持视频播放</span>
             </video>
           </div>
           <div class="p-6">
-            <h3 class="text-xl font-semibold mb-2 text-accent">
+            <h3 class="text-xl font-semibold mb-2 text-accent" data-i18n="demonstrations.card1.title">
               交通监测演示
             </h3>
-            <p class="text-light/80">展示鹰眼X在电动车中的应用...</p>
+            <p class="text-light/80" data-i18n="demonstrations.card1.desc">展示鹰眼X在电动车中的应用...</p>
           </div>
         </div>
         <div class="video-container">
           <div class="aspect-video bg-dark/40">
             <video controls poster="pic2.webp" class="w-full h-full object-contain" preload="none">
               <source src="video2.webm" type="video/mp4" />
-              你的浏览器不支持视频播放
+              <span data-i18n="video.unsupported">你的浏览器不支持视频播放</span>
             </video>
           </div>
           <div class="p-6">
-            <h3 class="text-xl font-semibold mb-2 text-accent">
+            <h3 class="text-xl font-semibold mb-2 text-accent" data-i18n="demonstrations.card2.title">
               交通监测演示
             </h3>
-            <p class="text-light/80">展示鹰眼X在摩托车的应用...</p>
+            <p class="text-light/80" data-i18n="demonstrations.card2.desc">展示鹰眼X在摩托车的应用...</p>
           </div>
         </div>
       </div>
@@ -499,19 +525,19 @@
   <section id="contact" class="py-20 relative bg-primary/20">
     <div class="container mx-auto px-6">
       <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-16 text-center">
-        <span class="inline-block border-b-4 border-accent pb-2">联系我们</span>
+        <span class="inline-block border-b-4 border-accent pb-2" data-i18n="contact.title">联系我们</span>
       </h2>
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
         <div class="bg-dark/60 backdrop-blur-sm p-8 rounded-xl border border-accent/20">
-          <h3 class="text-2xl font-semibold mb-6 text-accent">联系方式</h3>
+          <h3 class="text-2xl font-semibold mb-6 text-accent" data-i18n="contact.info.title">联系方式</h3>
           <div class="space-y-6">
             <div class="flex items-start">
               <div class="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center mr-4 flex-shrink-0">
                 <i class="fa fa-map-marker text-accent text-xl"></i>
               </div>
               <div>
-                <h4 class="font-semibold mb-1">公司地址</h4>
-                <p class="text-light/80">无锡市梅村街道科技园1-1</p>
+                <h4 class="font-semibold mb-1" data-i18n="contact.info.address.title">公司地址</h4>
+                <p class="text-light/80" data-i18n="contact.info.address.value">无锡市梅村街道科技园1-1</p>
               </div>
             </div>
             <div class="flex items-start">
@@ -519,7 +545,7 @@
                 <i class="fa fa-phone text-accent text-xl"></i>
               </div>
               <div>
-                <h4 class="font-semibold mb-1">联系电话</h4>
+                <h4 class="font-semibold mb-1" data-i18n="contact.info.phone.title">联系电话</h4>
                 <p class="text-light/80">15852752613</p>
               </div>
             </div>
@@ -528,7 +554,7 @@
                 <i class="fa fa-envelope text-accent text-xl"></i>
               </div>
               <div>
-                <h4 class="font-semibold mb-1">电子邮箱</h4>
+                <h4 class="font-semibold mb-1" data-i18n="contact.info.email.title">电子邮箱</h4>
                 <p class="text-light/80">zhangb188@qq.com</p>
                 <p class="text-light/80">124933736@qq.com</p>
               </div>
@@ -538,14 +564,14 @@
                 <i class="fa fa-clock-o text-accent text-xl"></i>
               </div>
               <div>
-                <h4 class="font-semibold mb-1">工作时间</h4>
-                <p class="text-light/80">周一至周五: 9:00 - 18:00</p>
-                <p class="text-light/80">周六: 10:00 - 16:00 (节假日除外)</p>
+                <h4 class="font-semibold mb-1" data-i18n="contact.info.hours.title">工作时间</h4>
+                <p class="text-light/80" data-i18n="contact.info.hours.weekdays">周一至周五: 9:00 - 18:00</p>
+                <p class="text-light/80" data-i18n="contact.info.hours.weekends">周六: 10:00 - 16:00 (节假日除外)</p>
               </div>
             </div>
           </div>
           <div class="mt-10">
-            <h4 class="font-semibold mb-4">关注我们</h4>
+            <h4 class="font-semibold mb-4" data-i18n="contact.social.title">关注我们</h4>
             <div class="grid grid-cols-2 gap-6">
               <div class="flex flex-col items-center">
                 <a
@@ -571,59 +597,59 @@
           </div>
         </div>
         <div class="bg-dark/60 backdrop-blur-sm p-8 rounded-xl border border-accent/20">
-          <h3 class="text-2xl font-semibold mb-6 text-accent">购买方式</h3>
+          <h3 class="text-2xl font-semibold mb-6 text-accent" data-i18n="contact.purchase.title">购买方式</h3>
           <div class="space-y-8">
             <div class="p-6 bg-primary/10 rounded-lg border border-accent/10">
               <h4 class="text-xl font-semibold mb-4 flex items-center">
                 <i class="fa fa-shopping-cart text-accent mr-2"></i>
-                零售购买
+                <span data-i18n="contact.purchase.retail.title">零售购买</span>
               </h4>
-              <p class="text-light/80 mb-6">
+              <p class="text-light/80 mb-6" data-i18n="contact.purchase.retail.desc">
                 适合个人用户或小批量采购需求，提供标准质保服务，支持平台担保交易
               </p>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <a href="https://e.tb.cn/h.hwbgmuSwm2PbCDg?tk=9Ijh4mORiU3" target="_blank"
                   class="buy-btn-hover inline-flex items-center justify-center px-6 py-3 bg-taobao text-white font-semibold rounded-full hover:bg-taobao/90 shadow-lg shadow-taobao/20">
                   <i class="fa fa-shopping-bag mr-2"></i>
-                  淘宝店铺购买
+                  <span data-i18n="contact.purchase.retail.taobao">淘宝店铺购买</span>
                 </a>
                 <a href="https://m.tb.cn/h.hw2Fldc?tk=3qYn4mO71V9" target="_blank"
                   class="buy-btn-hover inline-flex items-center justify-center px-6 py-3 bg-xianyu text-dark font-semibold rounded-full hover:bg-xianyu/90 shadow-lg shadow-xianyu/20">
                   <i class="fa fa-credit-card mr-2"></i>
-                  闲鱼平台购买
+                  <span data-i18n="contact.purchase.retail.xianyu">闲鱼平台购买</span>
                 </a>
               </div>
             </div>
             <div class="p-6 bg-primary/10 rounded-lg border border-accent/10">
               <h4 class="text-xl font-semibold mb-4 flex items-center">
                 <i class="fa fa-handshake-o text-accent mr-2"></i>
-                批量合作
+                <span data-i18n="contact.purchase.bulk.title">批量合作</span>
               </h4>
-              <p class="text-light/80 mb-6">
+              <p class="text-light/80 mb-6" data-i18n="contact.purchase.bulk.desc">
                 适合企业客户批量采购，提供定制化服务和技术支持
               </p>
               <!-- 2. 合作表单（ID不变，用于绑定提交事件） -->
               <form id="cooperation-form" class="space-y-4">
                 <div>
-                  <label for="name" class="block text-sm font-medium mb-1">您的姓名</label>
+                  <label for="name" class="block text-sm font-medium mb-1" data-i18n="contact.form.name">您的姓名</label>
                   <input type="text" id="name"
                     class="w-full px-4 py-2 bg-dark/50 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-light"
                     placeholder="请输入姓名" required />
                 </div>
                 <div>
-                  <label for="company" class="block text-sm font-medium mb-1">公司名称</label>
+                  <label for="company" class="block text-sm font-medium mb-1" data-i18n="contact.form.company">公司名称</label>
                   <input type="text" id="company"
                     class="w-full px-4 py-2 bg-dark/50 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-light"
                     placeholder="请输入公司名称" required />
                 </div>
                 <div>
-                  <label for="email" class="block text-sm font-medium mb-1">电子邮箱</label>
+                  <label for="email" class="block text-sm font-medium mb-1" data-i18n="contact.form.email">电子邮箱</label>
                   <input type="email" id="email"
                     class="w-full px-4 py-2 bg-dark/50 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-light"
                     placeholder="请输入电子邮箱" required />
                 </div>
                 <div>
-                  <label for="message" class="block text-sm font-medium mb-1">合作需求</label>
+                  <label for="message" class="block text-sm font-medium mb-1" data-i18n="contact.form.message">合作需求</label>
                   <textarea id="message" rows="3"
                     class="w-full px-4 py-2 bg-dark/50 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-light"
                     placeholder="请简要描述您的合作需求" required></textarea>
@@ -632,7 +658,7 @@
                 <button type="submit" id="submit-btn"
                   class="w-full px-6 py-3 bg-secondary text-white font-semibold rounded-full hover:bg-secondary/90 transition-all shadow-lg shadow-secondary/20">
                   <i class="fa fa-paper-plane mr-2"></i>
-                  提交合作咨询
+                  <span data-i18n="contact.form.submit">提交合作咨询</span>
                 </button>
               </form>
             </div>
@@ -649,19 +675,19 @@
           <div class="flex items-center">
             <i class="fa fa-eye text-accent text-2xl mr-2"></i>
             <h2 class="text-xl font-bold">
-              鹰眼系列 <span class="text-accent">X</span>
+              <span data-i18n="footer.product">鹰眼系列</span> <span class="text-accent">X</span>
             </h2>
           </div>
-          <p class="text-light/60 mt-2">精准感知，智能探测</p>
+          <p class="text-light/60 mt-2" data-i18n="footer.tagline">精准感知，智能探测</p>
         </div>
         <div class="text-light/80 text-sm mb-6 md:mb-0 flex items-center gap-6">
           <div class="flex items-center">
             <i class="fa fa-calendar-check-o text-accent mr-2"></i>
-            <span>当天访问量：<span id="today-visits" class="text-accent font-medium">0</span></span>
+            <span data-i18n="footer.today">当天访问量：</span><span id="today-visits" class="text-accent font-medium">0</span>
           </div>
           <div class="flex items-center">
             <i class="fa fa-line-chart text-accent mr-2"></i>
-            <span>累计访问量：<span id="total-visits" class="text-accent font-medium">0</span></span>
+            <span data-i18n="footer.total">累计访问量：</span><span id="total-visits" class="text-accent font-medium">0</span>
           </div>
         </div>
         <div class="mb-6 md:mb-0">
@@ -670,7 +696,7 @@
               TechElite <span class="text-accent">Inc</span>
             </h2>
           </div>
-          <p class="text-light/60 mt-2">科技梦想，拼搏向前！</p>
+          <p class="text-light/60 mt-2" data-i18n="footer.slogan">科技梦想，拼搏向前！</p>
         </div>
       </div>
     </div>
@@ -678,6 +704,256 @@
   <div id="toast" class="toast"></div>
   <!-- JavaScript -->
   <script>
+    // 语言包定义
+    const translations = {
+      zh: {
+        // 导航
+        "nav.product": "产品展示",
+        "nav.parameters": "技术参数",
+        "nav.demonstrations": "视频演示",
+        "nav.contact": "联系方式",
+        
+        // 英雄区域
+        "hero.title1": "鹰眼系列",
+        "hero.title2": "60GHz毫米波雷达",
+        "hero.subtitle": "精准感知，智能探测，引领雷达技术新革命",
+        "hero.support": "支持两轮电动车 三轮电动车 摩托车 汽车",
+        "hero.cta1": "了解产品",
+        "hero.cta2": "联系我们",
+        
+        // 产品展示
+        "product.title": "产品展示",
+        "product.card1.title": "正面视图",
+        "product.card1.desc": "精密设计，紧凑结构，适应多种安装环境",
+        "product.card2.title": "侧面视图",
+        "product.card2.desc": "超薄机身，先进散热设计，确保稳定运行",
+        "product.card3.title": "应用场景",
+        "product.card3.desc": "多场景适配，全方位智能感知解决方案",
+        
+        // 技术参数
+        "parameters.title": "技术参数",
+        "parameters.card1.title": "工作频率",
+        "parameters.card1.desc": "60GHz频段，符合国际通用标准，抗干扰能力强",
+        "parameters.card2.title": "探测范围",
+        "parameters.card2.desc": "0.5米 - 50米，人体探测精度±0.5米，车辆探测精度±1米",
+        "parameters.card3.title": "测速范围",
+        "parameters.card3.desc": "6km/h至200km/h，覆盖各类交通场景需求",
+        "parameters.card4.title": "工作电压",
+        "parameters.card4.desc": "DC 5V-24V宽电压设计，适应多种供电环境",
+        "parameters.card5.title": "工作温度",
+        "parameters.card5.desc": "-30℃至+80℃，极端环境下稳定工作",
+        "parameters.card6.title": "数据接口",
+        "parameters.card6.desc": "UART, I2C, SPI, 支持多种通信协议",
+        
+        // 表格
+        "parameters.table.header1": "参数名称",
+        "parameters.table.header2": "详细规格",
+        "parameters.table.header3": "参数名称",
+        "parameters.table.header4": "详细规格",
+        "parameters.table.row1.col1": "天线波束宽度",
+        "parameters.table.row1.col2": "水平80°，垂直60°",
+        "parameters.table.row1.col3": "发射功率",
+        "parameters.table.row1.col4": "11dBm",
+        "parameters.table.row2.col1": "探测距离",
+        "parameters.table.row2.col2": "0.1-15M(人体)，50M(车辆)",
+        "parameters.table.row2.col3": "响应时间",
+        "parameters.table.row2.col4": ">100ms",
+        "parameters.table.row3.col1": "探测盲区",
+        "parameters.table.row3.col2": "0.5M",
+        "parameters.table.row3.col3": "探测精度",
+        "parameters.table.row3.col4": "0.5M",
+        "parameters.table.row4.col1": "测速范围",
+        "parameters.table.row4.col2": "6-90KM/H",
+        "parameters.table.row4.col3": "工作电流",
+        "parameters.table.row4.col4": "30mA",
+        
+        // 视频演示
+        "demonstrations.title": "视频演示",
+        "demonstrations.card1.title": "交通监测演示",
+        "demonstrations.card1.desc": "展示鹰眼X在电动车中的应用...",
+        "demonstrations.card2.title": "交通监测演示",
+        "demonstrations.card2.desc": "展示鹰眼X在摩托车的应用...",
+        "video.unsupported": "你的浏览器不支持视频播放",
+        
+        // 联系方式
+        "contact.title": "联系我们",
+        "contact.info.title": "联系方式",
+        "contact.info.address.title": "公司地址",
+        "contact.info.address.value": "无锡市梅村街道科技园1-1",
+        "contact.info.phone.title": "联系电话",
+        "contact.info.email.title": "电子邮箱",
+        "contact.info.hours.title": "工作时间",
+        "contact.info.hours.weekdays": "周一至周五: 9:00 - 18:00",
+        "contact.info.hours.weekends": "周六: 10:00 - 16:00 (节假日除外)",
+        "contact.social.title": "关注我们",
+        "contact.purchase.title": "购买方式",
+        "contact.purchase.retail.title": "零售购买",
+        "contact.purchase.retail.desc": "适合个人用户或小批量采购需求，提供标准质保服务，支持平台担保交易",
+        "contact.purchase.retail.taobao": "淘宝店铺购买",
+        "contact.purchase.retail.xianyu": "闲鱼平台购买",
+        "contact.purchase.bulk.title": "批量合作",
+        "contact.purchase.bulk.desc": "适合企业客户批量采购，提供定制化服务和技术支持",
+        "contact.form.name": "您的姓名",
+        "contact.form.company": "公司名称",
+        "contact.form.email": "电子邮箱",
+        "contact.form.message": "合作需求",
+        "contact.form.submit": "提交合作咨询",
+        
+        // 页脚
+        "footer.product": "鹰眼系列",
+        "footer.tagline": "精准感知，智能探测",
+        "footer.today": "当天访问量：",
+        "footer.total": "累计访问量：",
+        "footer.slogan": "科技梦想，拼搏向前！"
+      },
+      en: {
+        // 导航
+        "nav.product": "Products",
+        "nav.parameters": "Specifications",
+        "nav.demonstrations": "Demos",
+        "nav.contact": "Contact",
+        
+        // 英雄区域
+        "hero.title1": "HawkEye Series",
+        "hero.title2": "60GHz Millimeter Wave Radar",
+        "hero.subtitle": "Precise sensing, intelligent detection, leading the radar technology revolution",
+        "hero.support": "Supports e-bikes, trikes, motorcycles, and cars",
+        "hero.cta1": "View Products",
+        "hero.cta2": "Contact Us",
+        
+        // 产品展示
+        "product.title": "Product Showcase",
+        "product.card1.title": "Front View",
+        "product.card1.desc": "Precision design, compact structure, adaptable to various installation environments",
+        "product.card2.title": "Side View",
+        "product.card2.desc": "Ultra-thin body, advanced heat dissipation design, ensuring stable operation",
+        "product.card3.title": "Application Scenarios",
+        "product.card3.desc": "Multi-scenario adaptation, comprehensive intelligent sensing solutions",
+        
+        // 技术参数
+        "parameters.title": "Technical Specifications",
+        "parameters.card1.title": "Operating Frequency",
+        "parameters.card1.desc": "60GHz band, compliant with international standards, strong anti-interference capability",
+        "parameters.card2.title": "Detection Range",
+        "parameters.card2.desc": "0.5m - 50m, human detection accuracy ±0.5m, vehicle detection accuracy ±1m",
+        "parameters.card3.title": "Speed Measurement Range",
+        "parameters.card3.desc": "6km/h to 200km/h, covering various traffic scenarios",
+        "parameters.card4.title": "Operating Voltage",
+        "parameters.card4.desc": "DC 5V-24V wide voltage design, adaptable to various power supply environments",
+        "parameters.card5.title": "Operating Temperature",
+        "parameters.card5.desc": "-30℃ to +80℃, stable operation in extreme environments",
+        "parameters.card6.title": "Data Interface",
+        "parameters.card6.desc": "UART, I2C, SPI, supports multiple communication protocols",
+        
+        // 表格
+        "parameters.table.header1": "Parameter",
+        "parameters.table.header2": "Specification",
+        "parameters.table.header3": "Parameter",
+        "parameters.table.header4": "Specification",
+        "parameters.table.row1.col1": "Antenna Beam Width",
+        "parameters.table.row1.col2": "Horizontal 80°, Vertical 60°",
+        "parameters.table.row1.col3": "Transmit Power",
+        "parameters.table.row1.col4": "11dBm",
+        "parameters.table.row2.col1": "Detection Range",
+        "parameters.table.row2.col2": "0.1-15M (Human), 50M (Vehicle)",
+        "parameters.table.row2.col3": "Response Time",
+        "parameters.table.row2.col4": ">100ms",
+        "parameters.table.row3.col1": "Blind Zone",
+        "parameters.table.row3.col2": "0.5M",
+        "parameters.table.row3.col3": "Detection Accuracy",
+        "parameters.table.row3.col4": "0.5M",
+        "parameters.table.row4.col1": "Speed Range",
+        "parameters.table.row4.col2": "6-90KM/H",
+        "parameters.table.row4.col3": "Operating Current",
+        "parameters.table.row4.col4": "30mA",
+        
+        // 视频演示
+        "demonstrations.title": "Video Demonstrations",
+        "demonstrations.card1.title": "Traffic Monitoring Demo",
+        "demonstrations.card1.desc": "Demonstrating HawkEye X in electric vehicles...",
+        "demonstrations.card2.title": "Traffic Monitoring Demo",
+        "demonstrations.card2.desc": "Demonstrating HawkEye X in motorcycles...",
+        "video.unsupported": "Your browser does not support video playback",
+        
+        // 联系方式
+        "contact.title": "Contact Us",
+        "contact.info.title": "Contact Information",
+        "contact.info.address.title": "Company Address",
+        "contact.info.address.value": "Science Park 1-1, Meicun Street, Wuxi",
+        "contact.info.phone.title": "Phone Number",
+        "contact.info.email.title": "Email",
+        "contact.info.hours.title": "Business Hours",
+        "contact.info.hours.weekdays": "Monday-Friday: 9:00 - 18:00",
+        "contact.info.hours.weekends": "Saturday: 10:00 - 16:00 (except holidays)",
+        "contact.social.title": "Follow Us",
+        "contact.purchase.title": "Purchase Options",
+        "contact.purchase.retail.title": "Retail Purchase",
+        "contact.purchase.retail.desc": "Suitable for individual users or small batch purchases, providing standard warranty service and platform-guaranteed transactions",
+        "contact.purchase.retail.taobao": "Buy on Taobao",
+        "contact.purchase.retail.xianyu": "Buy on Xianyu",
+        "contact.purchase.bulk.title": "Bulk Cooperation",
+        "contact.purchase.bulk.desc": "Suitable for enterprise customers' bulk purchases, providing customized services and technical support",
+        "contact.form.name": "Your Name",
+        "contact.form.company": "Company Name",
+        "contact.form.email": "Email Address",
+        "contact.form.message": "Cooperation Needs",
+        "contact.form.submit": "Submit Inquiry",
+        
+        // 页脚
+        "footer.product": "HawkEye Series",
+        "footer.tagline": "Precise Sensing, Intelligent Detection",
+        "footer.today": "Today: ",
+        "footer.total": "Total: ",
+        "footer.slogan": "Technology Dreams, Striving Forward!"
+      }
+    };
+
+    // 语言切换功能
+    document.addEventListener('DOMContentLoaded', function() {
+      const langSwitch = document.getElementById('lang-switch');
+      const langOptions = langSwitch.querySelectorAll('.lang-option');
+      let currentLang = localStorage.getItem('language') || 'zh';
+      
+      // 设置初始语言
+      setLanguage(currentLang);
+      
+      // 语言切换事件
+      langOptions.forEach(option => {
+        option.addEventListener('click', function() {
+          const lang = this.getAttribute('data-lang');
+          setLanguage(lang);
+        });
+      });
+      
+      // 设置语言函数
+      function setLanguage(lang) {
+        // 更新按钮状态
+        langOptions.forEach(option => {
+          if (option.getAttribute('data-lang') === lang) {
+            option.classList.add('lang-active');
+          } else {
+            option.classList.remove('lang-active');
+          }
+        });
+        
+        // 更新页面文本
+        document.querySelectorAll('[data-i18n]').forEach(element => {
+          const key = element.getAttribute('data-i18n');
+          if (translations[lang][key]) {
+            if (element.placeholder) {
+              element.placeholder = translations[lang][key];
+            } else {
+              element.textContent = translations[lang][key];
+            }
+          }
+        });
+        
+        // 保存语言偏好
+        localStorage.setItem('language', lang);
+        currentLang = lang;
+      }
+    });
+
     // 页面加载完成后隐藏加载动画
     window.addEventListener("load", function () {
       setTimeout(function () {
