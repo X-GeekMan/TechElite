@@ -157,6 +157,40 @@
           color: #051c40;
           font-weight: 500;
         }
+        /* 移动端菜单样式 */
+        .mobile-menu {
+          position: fixed;
+          top: 0;
+          right: -100%;
+          width: 80%;
+          max-width: 320px;
+          height: 100vh;
+          background: rgba(5, 28, 64, 0.98);
+          backdrop-filter: blur(10px);
+          z-index: 100;
+          padding: 80px 30px 30px;
+          transition: right 0.3s ease;
+          box-shadow: -5px 0 25px rgba(0, 0, 0, 0.3);
+        }
+        .mobile-menu.open {
+          right: 0;
+        }
+        .mobile-menu-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.5);
+          z-index: 99;
+          opacity: 0;
+          visibility: hidden;
+          transition: all 0.3s ease;
+        }
+        .mobile-menu-overlay.open {
+          opacity: 1;
+          visibility: visible;
+        }
       }
     </style>
   <style>
@@ -322,10 +356,32 @@
         <div class="lang-option" data-lang="en">EN</div>
       </div>
     </div>
-    <button class="md:hidden text-2xl">
+    <button class="md:hidden text-2xl" id="mobile-menu-btn">
       <i class="fa fa-bars"></i>
     </button>
   </nav>
+  
+  <!-- 移动端菜单 -->
+  <div class="mobile-menu" id="mobile-menu">
+    <div class="flex flex-col h-full">
+      <div class="flex-1 space-y-6">
+        <a href="#product" class="block py-3 text-lg border-b border-accent/20" data-i18n="nav.product">产品展示</a>
+        <a href="#parameters" class="block py-3 text-lg border-b border-accent/20" data-i18n="nav.parameters">技术参数</a>
+        <a href="#demonstrations" class="block py-3 text-lg border-b border-accent/20" data-i18n="nav.demonstrations">视频演示</a>
+        <a href="#contact" class="block py-3 text-lg border-b border-accent/20" data-i18n="nav.contact">联系方式</a>
+      </div>
+      <!-- 移动端语言切换按钮 -->
+      <div class="pt-6 border-t border-accent/20">
+        <h4 class="text-accent mb-3 font-medium" data-i18n="language.title">选择语言 / Language</h4>
+        <div class="lang-switch w-full justify-center" id="mobile-lang-switch">
+          <div class="lang-option lang-active" data-lang="zh">中文</div>
+          <div class="lang-option" data-lang="en">EN</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="mobile-menu-overlay" id="mobile-menu-overlay"></div>
+
   <!-- 英雄区域 -->
   <header class="relative min-h-screen flex items-center justify-center pt-16 overflow-hidden">
     <div class="absolute inset-0 bg-gradient-to-b from-primary/30 to-dark z-0"></div>
@@ -823,7 +879,10 @@
         "footer.tagline": "精准感知，智能探测",
         "footer.today": "当天访问量：",
         "footer.total": "累计访问量：",
-        "footer.slogan": "科技梦想，拼搏向前！"
+        "footer.slogan": "科技梦想，拼搏向前！",
+
+        // 新增移动端语言选择标题
+        "language.title": "选择语言"
       },
       en: {
         // 导航
@@ -923,30 +982,48 @@
         "footer.tagline": "Precise Sensing, Intelligent Detection",
         "footer.today": "Today: ",
         "footer.total": "Total: ",
-        "footer.slogan": "Technology Dreams, Striving Forward!"
+        "footer.slogan": "Technology Dreams, Striving Forward!",
+
+        // 新增移动端语言选择标题
+        "language.title": "Select Language"
       }
     };
 
     // 语言切换功能
     document.addEventListener('DOMContentLoaded', function () {
       const langSwitch = document.getElementById('lang-switch');
-      const langOptions = langSwitch.querySelectorAll('.lang-option');
+      const mobileLangSwitch = document.getElementById('mobile-lang-switch');
+      const langOptions = document.querySelectorAll('.lang-option');
       let currentLang = localStorage.getItem('language') || 'zh';
 
       // 设置初始语言
       setLanguage(currentLang);
 
-      // 语言切换事件
-      langOptions.forEach(option => {
-        option.addEventListener('click', function () {
-          const lang = this.getAttribute('data-lang');
-          setLanguage(lang);
+      // 语言切换事件 - 桌面端
+      if (langSwitch) {
+        langSwitch.querySelectorAll('.lang-option').forEach(option => {
+          option.addEventListener('click', function () {
+            const lang = this.getAttribute('data-lang');
+            setLanguage(lang);
+          });
         });
-      });
+      }
+
+      // 语言切换事件 - 移动端
+      if (mobileLangSwitch) {
+        mobileLangSwitch.querySelectorAll('.lang-option').forEach(option => {
+          option.addEventListener('click', function () {
+            const lang = this.getAttribute('data-lang');
+            setLanguage(lang);
+            // 切换语言后关闭移动菜单
+            closeMobileMenu();
+          });
+        });
+      }
 
       // 设置语言函数
       function setLanguage(lang) {
-        // 更新按钮状态
+        // 更新所有按钮状态
         langOptions.forEach(option => {
           if (option.getAttribute('data-lang') === lang) {
             option.classList.add('lang-active');
@@ -970,6 +1047,34 @@
         // 保存语言偏好
         localStorage.setItem('language', lang);
         currentLang = lang;
+      }
+
+      // 移动端菜单功能
+      const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+      const mobileMenu = document.getElementById('mobile-menu');
+      const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+
+      if (mobileMenuBtn && mobileMenu && mobileMenuOverlay) {
+        mobileMenuBtn.addEventListener('click', function() {
+          mobileMenu.classList.add('open');
+          mobileMenuOverlay.classList.add('open');
+        });
+
+        mobileMenuOverlay.addEventListener('click', function() {
+          closeMobileMenu();
+        });
+
+        // 点击菜单链接后关闭菜单
+        mobileMenu.querySelectorAll('a').forEach(link => {
+          link.addEventListener('click', function() {
+            closeMobileMenu();
+          });
+        });
+      }
+
+      function closeMobileMenu() {
+        mobileMenu.classList.remove('open');
+        mobileMenuOverlay.classList.remove('open');
       }
     });
 
