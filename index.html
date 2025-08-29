@@ -1,739 +1,971 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>鹰眼系列X 60GHZ毫米波雷达</title>
     <!-- 引入外部资源 -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css"
+      rel="stylesheet"
+    />
     <!-- 1. 引入 EmailJS 库（关键：用于发送邮件） -->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"
+    ></script>
+    <!-- Include LeanCloud SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/leancloud-storage@latest/dist/av-min.js"></script>
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: "#0b3d91", // 深蓝主色
-                        secondary: "#1e88e5", // 亮蓝辅助色
-                        accent: "#00b8d4", // 亮青色强调色
-                        dark: "#051c40", // 暗蓝色
-                        light: "#e3f2fd", // 浅蓝色
-                        taobao: "#FF4400", // 淘宝品牌橙
-                        xianyu: "#FF9F40", // 闲鱼品牌橙
-                    },
-                    fontFamily: {
-                        sans: ["Inter", "system-ui", "sans-serif"],
-                    },
-                },
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#0b3d91", // 深蓝主色
+              secondary: "#1e88e5", // 亮蓝辅助色
+              accent: "#00b8d4", // 亮青色强调色
+              dark: "#051c40", // 暗蓝色
+              light: "#e3f2fd", // 浅蓝色
+              taobao: "#FF4400", // 淘宝品牌橙
+              xianyu: "#FF9F40", // 闲鱼品牌橙
             },
-        };
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+            },
+          },
+        },
+      };
     </script>
     <style type="text/tailwindcss">
-        @layer utilities {
-            .content-auto {
-                content-visibility: auto;
-            }
-            .text-shadow {
-                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            }
-            .text-glow {
-                text-shadow: 0 0 10px rgba(0, 184, 212, 0.7);
-            }
-            .bg-grid {
-                background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
-                background-size: 30px 30px;
-            }
-            .animate-float {
-                animation: float 6s ease-in-out infinite;
-            }
-            @keyframes float {
-                0% {
-                    transform: translateY(0px);
-                }
-                50% {
-                    transform: translateY(-20px);
-                }
-                100% {
-                    transform: translateY(0px);
-                }
-            }
-            .buy-btn-hover {
-                transition: all 0.3s ease;
-            }
-            .buy-btn-hover:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-            }
-            /* 加载动画相关样式 */
-            .loader-container {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100vw;
-                height: 100vh;
-                background-color: #051c40; /* 与页面主背景一致 */
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                z-index: 99999; /* 确保在最顶层 */
-                transition: opacity 0.5s ease, visibility 0.5s ease;
-            }
-            .loader-text {
-                font-size: clamp(1.5rem, 4vw, 2.5rem);
-                font-weight: 600;
-                color: #ffffff; /* 改为白色 */
-                text-shadow: 0 0 15px rgba(255, 255, 255, 0.8); /* 白色阴影 */
-                margin-bottom: 1.5rem;
-                opacity: 0; /* 初始透明 */
-                /* 渐进式显示动画 */
-                animation: 
-                    fadeInUp 1.2s ease-in-out forwards,
-                    fadeInUpLoop 2s ease-in-out infinite alternate 1.2s;
-            }
-            .loader-spinner {
-                width: 50px;
-                height: 50px;
-                border: 4px solid rgba(0, 184, 212, 0.3); /* 浅色边框 */
-                border-top-color: #00b8d4; /* 强调色顶部边框 */
-                border-radius: 50%;
-                animation: spin 1.2s linear infinite;
-            }
-            /* 加载文字动画 */
-            @keyframes fadeInUp {
-                from {
-                    opacity: 0;
-                    transform: translateY(10px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-            /* 循环呼吸效果 */
-            @keyframes fadeInUpLoop {
-                from {
-                    opacity: 0.8;
-                }
-                to {
-                    opacity: 1;
-                }
-            }
-            /* 旋转动画 */
-            @keyframes spin {
-                to {
-                    transform: rotate(360deg);
-                }
-            }
-            /* 加载完成后隐藏动画 */
-            .loader-container.hidden {
-                opacity: 0;
-                visibility: hidden;
-            }
+      @layer utilities {
+        .content-auto {
+          content-visibility: auto;
         }
-    </style>
-    <style>
-        /* 基础动画和过渡效果 */
-        html {
-            scroll-behavior: smooth;
+        .text-shadow {
+          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        .image-container {
-            position: relative;
-            overflow: hidden;
-            border-radius: 12px;
+        .text-glow {
+          text-shadow: 0 0 10px rgba(0, 184, 212, 0.7);
         }
-        .image-container img {
-            transition: transform 0.5s ease, filter 0.5s ease;
+        .bg-grid {
+          background-image: radial-gradient(
+            rgba(255, 255, 255, 0.1) 1px,
+            transparent 1px
+          );
+          background-size: 30px 30px;
         }
-        .image-container:hover img {
-            transform: scale(1.05);
-            filter: brightness(1.1);
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
         }
-        .image-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(transparent, rgba(5, 28, 64, 0.9));
-            padding: 20px;
-            transform: translateY(100%);
-            transition: transform 0.3s ease;
-        }
-        .image-container:hover .image-overlay {
-            transform: translateY(0);
-        }
-        /* 参数卡片悬停效果 */
-        .param-card {
-            transition: all 0.3s ease;
-        }
-        .param-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0, 184, 212, 0.2);
-        }
-        /* 视频容器样式 */
-        .video-container {
-            position: relative;
-            overflow: hidden;
-            border-radius: 12px;
-            background-color: #051c40;
-        }
-        .video-container::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle, rgba(0, 184, 212, 0.1) 0%, rgba(5, 28, 64, 0) 70%);
-            z-index: 1;
-            pointer-events: none;
-        }
-        /* 导航栏滚动效果 */
-        .navbar {
-            transition: background-color 0.3s ease, padding 0.3s ease;
-        }
-        .navbar.scrolled {
-            background-color: rgba(5, 28, 64, 0.95);
-            padding-top: 0.5rem;
-            padding-bottom: 0.5rem;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        }
-        /* 提示消息样式 */
-        .toast {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 12px 20px;
-            border-radius: 8px;
-            color: white;
-            font-weight: 500;
-            z-index: 9999;
-            opacity: 0;
+        @keyframes float {
+          0% {
+            transform: translateY(0px);
+          }
+          50% {
             transform: translateY(-20px);
-            transition: opacity 0.3s ease, transform 0.3s ease;
+          }
+          100% {
+            transform: translateY(0px);
+          }
         }
-        .toast.success {
-            background-color: #10b981; /* 成功绿色 */
+        .buy-btn-hover {
+          transition: all 0.3s ease;
         }
-        .toast.error {
-            background-color: #ef4444; /* 错误红色 */
+        .buy-btn-hover:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
-        .toast.show {
+        /* 加载动画相关样式 */
+        .loader-container {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          background-color: #051c40; /* 与页面主背景一致 */
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          z-index: 99999; /* 确保在最顶层 */
+          transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        .loader-text {
+          font-size: clamp(1.5rem, 4vw, 2.5rem);
+          font-weight: 600;
+          color: #ffffff; /* 改为白色 */
+          text-shadow: 0 0 15px rgba(255, 255, 255, 0.8); /* 白色阴影 */
+          margin-bottom: 1.5rem;
+          opacity: 0; /* 初始透明 */
+          /* 渐进式显示动画 */
+          animation: fadeInUp 1.2s ease-in-out forwards,
+            fadeInUpLoop 2s ease-in-out infinite alternate 1.2s;
+        }
+        .loader-spinner {
+          width: 50px;
+          height: 50px;
+          border: 4px solid rgba(0, 184, 212, 0.3); /* 浅色边框 */
+          border-top-color: #00b8d4; /* 强调色顶部边框 */
+          border-radius: 50%;
+          animation: spin 1.2s linear infinite;
+        }
+        /* 加载文字动画 */
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
             opacity: 1;
             transform: translateY(0);
+          }
         }
-        /* 英雄区域半透明背景图样式 */
-        header {
-            background-image: url("bg.webp");
-            background-size: cover; /* 背景图自适应容器，覆盖整个区域 */
-            background-position: center; /* 背景图居中显示 */
-            background-repeat: no-repeat; /* 禁止背景图重复 */
-            background-color: rgba(0, 0, 0, 0.15);
-            background-blend-mode: multiply;
+        /* 循环呼吸效果 */
+        @keyframes fadeInUpLoop {
+          from {
+            opacity: 0.8;
+          }
+          to {
+            opacity: 1;
+          }
         }
-        /* 按钮加载中样式 */
-        .btn-loading {
-            opacity: 0.7;
-            cursor: not-allowed;
+        /* 旋转动画 */
+        @keyframes spin {
+          to {
+            transform: rotate(360deg);
+          }
         }
-        .btn-loading i {
-            animation: spin 1s linear infinite;
+        /* 加载完成后隐藏动画 */
+        .loader-container.hidden {
+          opacity: 0;
+          visibility: hidden;
         }
+      }
     </style>
-</head>
-<body class="bg-dark text-light font-sans">
+    <style>
+      /* 基础动画和过渡效果 */
+      html {
+        scroll-behavior: smooth;
+      }
+      .image-container {
+        position: relative;
+        overflow: hidden;
+        border-radius: 12px;
+      }
+      .image-container img {
+        transition: transform 0.5s ease, filter 0.5s ease;
+      }
+      .image-container:hover img {
+        transform: scale(1.05);
+        filter: brightness(1.1);
+      }
+      .image-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(transparent, rgba(5, 28, 64, 0.9));
+        padding: 20px;
+        transform: translateY(100%);
+        transition: transform 0.3s ease;
+      }
+      .image-container:hover .image-overlay {
+        transform: translateY(0);
+      }
+      /* 参数卡片悬停效果 */
+      .param-card {
+        transition: all 0.3s ease;
+      }
+      .param-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 184, 212, 0.2);
+      }
+      /* 视频容器样式 */
+      .video-container {
+        position: relative;
+        overflow: hidden;
+        border-radius: 12px;
+        background-color: #051c40;
+      }
+      .video-container::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(
+          circle,
+          rgba(0, 184, 212, 0.1) 0%,
+          rgba(5, 28, 64, 0) 70%
+        );
+        z-index: 1;
+        pointer-events: none;
+      }
+      /* 导航栏滚动效果 */
+      .navbar {
+        transition: background-color 0.3s ease, padding 0.3s ease;
+      }
+      .navbar.scrolled {
+        background-color: rgba(5, 28, 64, 0.95);
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      }
+      /* 提示消息样式 */
+      .toast {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 500;
+        z-index: 9999;
+        opacity: 0;
+        transform: translateY(-20px);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+      }
+      .toast.success {
+        background-color: #10b981; /* 成功绿色 */
+      }
+      .toast.error {
+        background-color: #ef4444; /* 错误红色 */
+      }
+      .toast.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      /* 英雄区域半透明背景图样式 */
+      header {
+        background-image: url("bg.webp");
+        background-size: cover; /* 背景图自适应容器，覆盖整个区域 */
+        background-position: center; /* 背景图居中显示 */
+        background-repeat: no-repeat; /* 禁止背景图重复 */
+        background-color: rgba(0, 0, 0, 0.15);
+        background-blend-mode: multiply;
+      }
+      /* 按钮加载中样式 */
+      .btn-loading {
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
+      .btn-loading i {
+        animation: spin 1s linear infinite;
+      }
+    </style>
+  </head>
+  <body class="bg-dark text-light font-sans">
     <!-- 加载动画容器 -->
     <div class="loader-container" id="loader">
-        <div class="loader-text">欢迎访问TechElite官网</div>
-        <div class="loader-spinner"></div>
+      <div class="loader-text">欢迎访问TechElite官网</div>
+      <div class="loader-spinner"></div>
     </div>
-
     <!-- 背景网格效果 -->
     <div class="fixed inset-0 bg-grid opacity-30 z-0"></div>
     <!-- 导航栏 -->
-    <nav class="navbar fixed top-0 left-0 right-0 z-50 px-6 py-4 flex justify-between items-center">
-        <div class="flex items-center">
-            <i class="fa fa-eye text-accent text-3xl mr-3"></i>
-            <h1 class="text-2xl font-bold text-white">TechElite<span class="text-accent"></span></h1>
-        </div>
-        <div class="hidden md:flex space-x-8">
-            <a href="#product" class="text-light hover:text-accent transition-colors">产品展示</a>
-            <a href="#parameters" class="text-light hover:text-accent transition-colors">技术参数</a>
-            <a href="#demonstrations" class="text-light hover:text-accent transition-colors">视频演示</a>
-            <a href="#contact" class="text-light hover:text-accent transition-colors">联系方式</a>
-        </div>
-        <button class="md:hidden text-2xl">
-            <i class="fa fa-bars"></i>
-        </button>
+    <nav
+      class="navbar fixed top-0 left-0 right-0 z-50 px-6 py-4 flex justify-between items-center"
+    >
+      <div class="flex items-center">
+        <i class="fa fa-eye text-accent text-3xl mr-3"></i>
+        <h1 class="text-2xl font-bold text-white">
+          TechElite<span class="text-accent"></span>
+        </h1>
+      </div>
+      <div class="hidden md:flex space-x-8">
+        <a
+          href="#product"
+          class="text-light hover:text-accent transition-colors"
+          >产品展示</a
+        >
+        <a
+          href="#parameters"
+          class="text-light hover:text-accent transition-colors"
+          >技术参数</a
+        >
+        <a
+          href="#demonstrations"
+          class="text-light hover:text-accent transition-colors"
+          >视频演示</a
+        >
+        <a
+          href="#contact"
+          class="text-light hover:text-accent transition-colors"
+          >联系方式</a
+        >
+      </div>
+      <button class="md:hidden text-2xl">
+        <i class="fa fa-bars"></i>
+      </button>
     </nav>
     <!-- 英雄区域 -->
-    <header class="relative min-h-screen flex items-center justify-center pt-16 overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-b from-primary/30 to-dark z-0"></div>
-        <div class="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-accent/10 blur-3xl animate-float"></div>
-        <div class="absolute bottom-1/3 right-1/3 w-80 h-80 rounded-full bg-secondary/10 blur-3xl animate-float" style="animation-delay: 2s"></div>
-        <div class="container mx-auto px-6 z-10 text-center">
-            <h1 class="text-[clamp(2.5rem,6vw,5rem)] font-bold mb-6 leading-tight text-glow">
-                鹰眼系列 <span class="text-accent">X</span><br />60GHz毫米波雷达
-            </h1>
-            <p class="text-[clamp(1rem,2vw,1.25rem)] max-w-3xl mx-auto mb-10 text-light/80">
-                精准感知，智能探测，引领雷达技术新革命
-            </p>
-             <p class="text-[clamp(1rem,2vw,1.25rem)] max-w-3xl mx-auto mb-6 text-light/80">
-                支持两轮电动车 三轮电动车 摩托车 汽车
-            </p>
-            <div class="flex flex-col sm:flex-row justify-center gap-4">
-                <a href="#product" class="px-8 py-3 bg-accent text-dark font-semibold rounded-full hover:bg-accent/90 transition-all shadow-lg shadow-accent/20">了解产品</a>
-                <a href="#contact" class="px-8 py-3 bg-transparent border-2 border-accent text-accent font-semibold rounded-full hover:bg-accent/10 transition-all">联系我们</a>
-            </div>
+    <header
+      class="relative min-h-screen flex items-center justify-center pt-16 overflow-hidden"
+    >
+      <div
+        class="absolute inset-0 bg-gradient-to-b from-primary/30 to-dark z-0"
+      ></div>
+      <div
+        class="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-accent/10 blur-3xl animate-float"
+      ></div>
+      <div
+        class="absolute bottom-1/3 right-1/3 w-80 h-80 rounded-full bg-secondary/10 blur-3xl animate-float"
+        style="animation-delay: 2s"
+      ></div>
+      <div class="container mx-auto px-6 z-10 text-center">
+        <h1
+          class="text-[clamp(2.5rem,6vw,5rem)] font-bold mb-6 leading-tight text-glow"
+        >
+          鹰眼系列 <span class="text-accent">X</span><br />60GHz毫米波雷达
+        </h1>
+        <p
+          class="text-[clamp(1rem,2vw,1.25rem)] max-w-3xl mx-auto mb-10 text-light/80"
+        >
+          精准感知，智能探测，引领雷达技术新革命
+        </p>
+        <p
+          class="text-[clamp(1rem,2vw,1.25rem)] max-w-3xl mx-auto mb-6 text-light/80"
+        >
+          支持两轮电动车 三轮电动车 摩托车 汽车
+        </p>
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+          <a
+            href="#product"
+            class="px-8 py-3 bg-accent text-dark font-semibold rounded-full hover:bg-accent/90 transition-all shadow-lg shadow-accent/20"
+            >了解产品</a
+          >
+          <a
+            href="#contact"
+            class="px-8 py-3 bg-transparent border-2 border-accent text-accent font-semibold rounded-full hover:bg-accent/10 transition-all"
+            >联系我们</a
+          >
         </div>
-        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
-            <i class="fa fa-angle-down text-3xl text-accent/70"></i>
-        </div>
+      </div>
+      <div
+        class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce"
+      >
+        <i class="fa fa-angle-down text-3xl text-accent/70"></i>
+      </div>
     </header>
     <!-- 产品图片部分 -->
     <section id="product" class="py-20 relative">
-        <div class="container mx-auto px-6">
-            <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-16 text-center">
-                <span class="inline-block border-b-4 border-accent pb-2">产品展示</span>
-            </h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="image-container shadow-2xl shadow-primary/20">
-                    <img src="radar_top.webp" alt="鹰眼X毫米波雷达正面视图" class="w-full h-80 object-cover" loading="lazy" />
-                    <div class="image-overlay">
-                        <h3 class="text-xl font-semibold mb-2 text-accent">正面视图</h3>
-                        <p class="text-sm text-light/80">精密设计，紧凑结构，适应多种安装环境</p>
-                    </div>
-                </div>
-                <div class="image-container shadow-2xl shadow-primary/20">
-                    <img src="radar_bottom.webp" alt="鹰眼X毫米波雷达侧面视图" class="w-full h-80 object-cover" loading="lazy" />
-                    <div class="image-overlay">
-                        <h3 class="text-xl font-semibold mb-2 text-accent">侧面视图</h3>
-                        <p class="text-sm text-light/80">超薄机身，先进散热设计，确保稳定运行</p>
-                    </div>
-                </div>
-                <div class="image-container shadow-2xl shadow-primary/20">
-                    <img src="pcb.webp" alt="鹰眼X毫米波雷达应用场景" class="w-full h-80 object-cover" loading="lazy" />
-                    <div class="image-overlay">
-                        <h3 class="text-xl font-semibold mb-2 text-accent">应用场景</h3>
-                        <p class="text-sm text-light/80">多场景适配，全方位智能感知解决方案</p>
-                    </div>
-                </div>
+      <div class="container mx-auto px-6">
+        <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-16 text-center">
+          <span class="inline-block border-b-4 border-accent pb-2"
+            >产品展示</span
+          >
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div class="image-container shadow-2xl shadow-primary/20">
+            <img
+              src="radar_top.webp"
+              alt="鹰眼X毫米波雷达正面视图"
+              class="w-full h-80 object-cover"
+              loading="lazy"
+            />
+            <div class="image-overlay">
+              <h3 class="text-xl font-semibold mb-2 text-accent">正面视图</h3>
+              <p class="text-sm text-light/80">
+                精密设计，紧凑结构，适应多种安装环境
+              </p>
             </div>
+          </div>
+          <div class="image-container shadow-2xl shadow-primary/20">
+            <img
+              src="radar_bottom.webp"
+              alt="鹰眼X毫米波雷达侧面视图"
+              class="w-full h-80 object-cover"
+              loading="lazy"
+            />
+            <div class="image-overlay">
+              <h3 class="text-xl font-semibold mb-2 text-accent">侧面视图</h3>
+              <p class="text-sm text-light/80">
+                超薄机身，先进散热设计，确保稳定运行
+              </p>
+            </div>
+          </div>
+          <div class="image-container shadow-2xl shadow-primary/20">
+            <img
+              src="pcb.webp"
+              alt="鹰眼X毫米波雷达应用场景"
+              class="w-full h-80 object-cover"
+              loading="lazy"
+            />
+            <div class="image-overlay">
+              <h3 class="text-xl font-semibold mb-2 text-accent">应用场景</h3>
+              <p class="text-sm text-light/80">
+                多场景适配，全方位智能感知解决方案
+              </p>
+            </div>
+          </div>
         </div>
+      </div>
     </section>
     <!-- 技术参数部分 -->
     <section id="parameters" class="py-20 relative bg-primary/20">
-        <div class="container mx-auto px-6">
-            <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-16 text-center">
-                <span class="inline-block border-b-4 border-accent pb-2">技术参数</span>
-            </h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div class="param-card bg-dark/60 backdrop-blur-sm p-6 rounded-xl border border-accent/20">
-                    <div class="flex items-center mb-4">
-                        <i class="fa fa-wifi text-accent text-xl mr-3"></i>
-                        <h3 class="text-xl font-semibold">工作频率</h3>
-                    </div>
-                    <p class="text-light/80">60GHz频段，符合国际通用标准，抗干扰能力强</p>
-                </div>
-                <div class="param-card bg-dark/60 backdrop-blur-sm p-6 rounded-xl border border-accent/20">
-                    <div class="flex items-center mb-4">
-                        <i class="fa fa-arrows-alt text-accent text-xl mr-3"></i>
-                        <h3 class="text-xl font-semibold">探测范围</h3>
-                    </div>
-                    <p class="text-light/80">0.5米 - 50米，人体探测精度±0.5米，车辆探测精度±1米</p>
-                </div>
-                <div class="param-card bg-dark/60 backdrop-blur-sm p-6 rounded-xl border border-accent/20">
-                    <div class="flex items-center mb-4">
-                        <i class="fa fa-refresh text-accent text-xl mr-3"></i>
-                        <h3 class="text-xl font-semibold">测速范围</h3>
-                    </div>
-                    <p class="text-light/80">6km/h至200km/h，覆盖各类交通场景需求</p>
-                </div>
-                <div class="param-card bg-dark/60 backdrop-blur-sm p-6 rounded-xl border border-accent/20">
-                    <div class="flex items-center mb-4">
-                        <i class="fa fa-bolt text-accent text-xl mr-3"></i>
-                        <h3 class="text-xl font-semibold">工作电压</h3>
-                    </div>
-                    <p class="text-light/80">DC 5V-24V宽电压设计，适应多种供电环境</p>
-                </div>
-                <div class="param-card bg-dark/60 backdrop-blur-sm p-6 rounded-xl border border-accent/20">
-                    <div class="flex items-center mb-4">
-                        <i class="fa fa-thermometer-half text-accent text-xl mr-3"></i>
-                        <h3 class="text-xl font-semibold">工作温度</h3>
-                    </div>
-                    <p class="text-light/80">-30℃至+80℃，极端环境下稳定工作</p>
-                </div>
-                <div class="param-card bg-dark/60 backdrop-blur-sm p-6 rounded-xl border border-accent/20">
-                    <div class="flex items-center mb-4">
-                        <i class="fa fa-exchange text-accent text-xl mr-3"></i>
-                        <h3 class="text-xl font-semibold">数据接口</h3>
-                    </div>
-                    <p class="text-light/80">UART, I2C, SPI, 支持多种通信协议</p>
-                </div>
+      <div class="container mx-auto px-6">
+        <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-16 text-center">
+          <span class="inline-block border-b-4 border-accent pb-2"
+            >技术参数</span
+          >
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div
+            class="param-card bg-dark/60 backdrop-blur-sm p-6 rounded-xl border border-accent/20"
+          >
+            <div class="flex items-center mb-4">
+              <i class="fa fa-wifi text-accent text-xl mr-3"></i>
+              <h3 class="text-xl font-semibold">工作频率</h3>
             </div>
-            <div class="mt-16 overflow-hidden rounded-xl border border-accent/20">
-                <table class="w-full">
-                    <thead>
-                        <tr class="bg-primary/30">
-                            <th class="py-4 px-6 text-left">参数名称</th>
-                            <th class="py-4 px-6 text-left">详细规格</th>
-                            <th class="py-4 px-6 text-left">参数名称</th>
-                            <th class="py-4 px-6 text-left">详细规格</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-accent/10">
-                        <tr class="hover:bg-primary/10 transition-colors">
-                            <td class="py-4 px-6">天线波束宽度</td>
-                            <td class="py-4 px-6">水平80°，垂直60°</td>
-                            <td class="py-4 px-6">发射功率</td>
-                            <td class="py-4 px-6">11dBm</td>
-                        </tr>
-                        <tr class="hover:bg-primary/10 transition-colors">
-                            <td class="py-4 px-6">探测距离</td>
-                            <td class="py-4 px-6">0.1-15M(人体)，50M(车辆)</td>
-                            <td class="py-4 px-6">响应时间</td>
-                            <td class="py-4 px-6">>100ms</td>
-                        </tr>
-                        <tr class="hover:bg-primary/10 transition-colors">
-                            <td class="py-4 px-6">探测盲区</td>
-                            <td class="py-4 px-6">0.5M</td>
-                            <td class="py-4 px-6">探测精度</td>
-                            <td class="py-4 px-6">0.5M</td>
-                        </tr>
-                        <tr class="hover:bg-primary/10 transition-colors">
-                            <td class="py-4 px-6">测速范围</td>
-                            <td class="py-4 px-6">6-90KM/H</td>
-                            <td class="py-4 px-6">工作电流</td>
-                            <td class="py-4 px-6">30mA</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <p class="text-light/80">
+              60GHz频段，符合国际通用标准，抗干扰能力强
+            </p>
+          </div>
+          <div
+            class="param-card bg-dark/60 backdrop-blur-sm p-6 rounded-xl border border-accent/20"
+          >
+            <div class="flex items-center mb-4">
+              <i class="fa fa-arrows-alt text-accent text-xl mr-3"></i>
+              <h3 class="text-xl font-semibold">探测范围</h3>
             </div>
+            <p class="text-light/80">
+              0.5米 - 50米，人体探测精度±0.5米，车辆探测精度±1米
+            </p>
+          </div>
+          <div
+            class="param-card bg-dark/60 backdrop-blur-sm p-6 rounded-xl border border-accent/20"
+          >
+            <div class="flex items-center mb-4">
+              <i class="fa fa-refresh text-accent text-xl mr-3"></i>
+              <h3 class="text-xl font-semibold">测速范围</h3>
+            </div>
+            <p class="text-light/80">6km/h至200km/h，覆盖各类交通场景需求</p>
+          </div>
+          <div
+            class="param-card bg-dark/60 backdrop-blur-sm p-6 rounded-xl border border-accent/20"
+          >
+            <div class="flex items-center mb-4">
+              <i class="fa fa-bolt text-accent text-xl mr-3"></i>
+              <h3 class="text-xl font-semibold">工作电压</h3>
+            </div>
+            <p class="text-light/80">DC 5V-24V宽电压设计，适应多种供电环境</p>
+          </div>
+          <div
+            class="param-card bg-dark/60 backdrop-blur-sm p-6 rounded-xl border border-accent/20"
+          >
+            <div class="flex items-center mb-4">
+              <i class="fa fa-thermometer-half text-accent text-xl mr-3"></i>
+              <h3 class="text-xl font-semibold">工作温度</h3>
+            </div>
+            <p class="text-light/80">-30℃至+80℃，极端环境下稳定工作</p>
+          </div>
+          <div
+            class="param-card bg-dark/60 backdrop-blur-sm p-6 rounded-xl border border-accent/20"
+          >
+            <div class="flex items-center mb-4">
+              <i class="fa fa-exchange text-accent text-xl mr-3"></i>
+              <h3 class="text-xl font-semibold">数据接口</h3>
+            </div>
+            <p class="text-light/80">UART, I2C, SPI, 支持多种通信协议</p>
+          </div>
         </div>
+        <div class="mt-16 overflow-hidden rounded-xl border border-accent/20">
+          <table class="w-full">
+            <thead>
+              <tr class="bg-primary/30">
+                <th class="py-4 px-6 text-left">参数名称</th>
+                <th class="py-4 px-6 text-left">详细规格</th>
+                <th class="py-4 px-6 text-left">参数名称</th>
+                <th class="py-4 px-6 text-left">详细规格</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-accent/10">
+              <tr class="hover:bg-primary/10 transition-colors">
+                <td class="py-4 px-6">天线波束宽度</td>
+                <td class="py-4 px-6">水平80°，垂直60°</td>
+                <td class="py-4 px-6">发射功率</td>
+                <td class="py-4 px-6">11dBm</td>
+              </tr>
+              <tr class="hover:bg-primary/10 transition-colors">
+                <td class="py-4 px-6">探测距离</td>
+                <td class="py-4 px-6">0.1-15M(人体)，50M(车辆)</td>
+                <td class="py-4 px-6">响应时间</td>
+                <td class="py-4 px-6">>100ms</td>
+              </tr>
+              <tr class="hover:bg-primary/10 transition-colors">
+                <td class="py-4 px-6">探测盲区</td>
+                <td class="py-4 px-6">0.5M</td>
+                <td class="py-4 px-6">探测精度</td>
+                <td class="py-4 px-6">0.5M</td>
+              </tr>
+              <tr class="hover:bg-primary/10 transition-colors">
+                <td class="py-4 px-6">测速范围</td>
+                <td class="py-4 px-6">6-90KM/H</td>
+                <td class="py-4 px-6">工作电流</td>
+                <td class="py-4 px-6">30mA</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </section>
     <!-- 视频演示部分 -->
     <section id="demonstrations" class="py-20 relative">
-        <div class="container mx-auto px-6">
-            <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-16 text-center">
-                <span class="inline-block border-b-4 border-accent pb-2">视频演示</span>
-            </h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-                <div class="video-container">
-                    <div class="aspect-video bg-dark/40">
-                        <video controls poster="pic1.webp" class="w-full h-full object-contain" preload="none">
-                            <source src="video1.webm" type="video/mp4" />
-                            你的浏览器不支持视频播放
-                        </video>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold mb-2 text-accent">交通监测演示</h3>
-                        <p class="text-light/80">展示鹰眼X在电动车中的应用...</p>
-                    </div>
-                </div>
-                <div class="video-container">
-                    <div class="aspect-video bg-dark/40">
-                        <video controls poster="pic2.webp" class="w-full h-full object-contain" preload="none">
-                            <source src="video2.webm" type="video/mp4" />
-                            你的浏览器不支持视频播放
-                        </video>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold mb-2 text-accent">交通监测演示</h3>
-                        <p class="text-light/80">展示鹰眼X在摩托车的应用...</p>
-                    </div>
-                </div>
+      <div class="container mx-auto px-6">
+        <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-16 text-center">
+          <span class="inline-block border-b-4 border-accent pb-2"
+            >视频演示</span
+          >
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+          <div class="video-container">
+            <div class="aspect-video bg-dark/40">
+              <video
+                controls
+                poster="pic1.webp"
+                class="w-full h-full object-contain"
+                preload="none"
+              >
+                <source src="video1.webm" type="video/mp4" />
+                你的浏览器不支持视频播放
+              </video>
             </div>
+            <div class="p-6">
+              <h3 class="text-xl font-semibold mb-2 text-accent">
+                交通监测演示
+              </h3>
+              <p class="text-light/80">展示鹰眼X在电动车中的应用...</p>
+            </div>
+          </div>
+          <div class="video-container">
+            <div class="aspect-video bg-dark/40">
+              <video
+                controls
+                poster="pic2.webp"
+                class="w-full h-full object-contain"
+                preload="none"
+              >
+                <source src="video2.webm" type="video/mp4" />
+                你的浏览器不支持视频播放
+              </video>
+            </div>
+            <div class="p-6">
+              <h3 class="text-xl font-semibold mb-2 text-accent">
+                交通监测演示
+              </h3>
+              <p class="text-light/80">展示鹰眼X在摩托车的应用...</p>
+            </div>
+          </div>
         </div>
+      </div>
     </section>
     <!-- 联系方式部分 -->
     <section id="contact" class="py-20 relative bg-primary/20">
-        <div class="container mx-auto px-6">
-            <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-16 text-center">
-                <span class="inline-block border-b-4 border-accent pb-2">联系我们</span>
-            </h2>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                <div class="bg-dark/60 backdrop-blur-sm p-8 rounded-xl border border-accent/20">
-                    <h3 class="text-2xl font-semibold mb-6 text-accent">联系方式</h3>
-                    <div class="space-y-6">
-                        <div class="flex items-start">
-                            <div class="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center mr-4 flex-shrink-0">
-                                <i class="fa fa-map-marker text-accent text-xl"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold mb-1">公司地址</h4>
-                                <p class="text-light/80">无锡市梅村街道科技园1-1</p>
-                            </div>
-                        </div>
-                        <div class="flex items-start">
-                            <div class="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center mr-4 flex-shrink-0">
-                                <i class="fa fa-phone text-accent text-xl"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold mb-1">联系电话</h4>
-                                <p class="text-light/80">15852752613</p>
-                            </div>
-                        </div>
-                        <div class="flex items-start">
-                            <div class="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center mr-4 flex-shrink-0">
-                                <i class="fa fa-envelope text-accent text-xl"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold mb-1">电子邮箱</h4>
-                                <p class="text-light/80">zhangb188@qq.com</p>
-                                <p class="text-light/80">124933736@qq.com</p>
-                            </div>
-                        </div>
-                        <div class="flex items-start">
-                            <div class="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center mr-4 flex-shrink-0">
-                                <i class="fa fa-clock-o text-accent text-xl"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold mb-1">工作时间</h4>
-                                <p class="text-light/80">周一至周五: 9:00 - 18:00</p>
-                                <p class="text-light/80">周六: 10:00 - 16:00 (节假日除外)</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mt-10">
-                        <h4 class="font-semibold mb-4">关注我们</h4>
-                        <div class="grid grid-cols-2 gap-6">
-                            <div class="flex flex-col items-center">
-                                <a class="w-10 h-10 rounded-full bg-[#FE2C55]/20 flex items-center justify-center text-[#FE2C55] hover:bg-[#FE2C55] hover:text-white transition-colors duration-300 mb-3">
-                                    <i class="fa fa-book"></i>
-                                </a>
-                                <!-- 小红书二维码尺寸从w-48 h-48改为w-32 h-32 -->
-                                <div class="w-32 h-32 bg-white p-2 rounded-lg">
-                                    <img src="xiaohongshu.webp" alt="小红书二维码" class="w-full h-full object-contain" loading="lazy" />
-                                </div>
-                            </div>
-                            <div class="flex flex-col items-center">
-                                <a class="w-10 h-10 rounded-full bg-[#07C160]/20 flex items-center justify-center text-[#07C160] hover:bg-[#07C160] hover:text-white transition-colors duration-300 mb-3">
-                                    <i class="fa fa-weixin"></i>
-                                </a>
-                                <!-- 微信二维码尺寸从w-48 h-48改为w-32 h-32 -->
-                                <div class="w-32 h-32 bg-white p-2 rounded-lg">
-                                    <img src="weixin.webp" alt="微信二维码" class="w-full h-full object-contain" loading="lazy" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+      <div class="container mx-auto px-6">
+        <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-16 text-center">
+          <span class="inline-block border-b-4 border-accent pb-2"
+            >联系我们</span
+          >
+        </h2>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+          <div
+            class="bg-dark/60 backdrop-blur-sm p-8 rounded-xl border border-accent/20"
+          >
+            <h3 class="text-2xl font-semibold mb-6 text-accent">联系方式</h3>
+            <div class="space-y-6">
+              <div class="flex items-start">
+                <div
+                  class="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center mr-4 flex-shrink-0"
+                >
+                  <i class="fa fa-map-marker text-accent text-xl"></i>
                 </div>
-                <div class="bg-dark/60 backdrop-blur-sm p-8 rounded-xl border border-accent/20">
-                    <h3 class="text-2xl font-semibold mb-6 text-accent">购买方式</h3>
-                    <div class="space-y-8">
-                        <div class="p-6 bg-primary/10 rounded-lg border border-accent/10">
-                            <h4 class="text-xl font-semibold mb-4 flex items-center">
-                                <i class="fa fa-shopping-cart text-accent mr-2"></i>
-                                零售购买
-                            </h4>
-                            <p class="text-light/80 mb-6">适合个人用户或小批量采购需求，提供标准质保服务，支持平台担保交易</p>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <a href="https://e.tb.cn/h.hwbgmuSwm2PbCDg?tk=9Ijh4mORiU3" target="_blank" class="buy-btn-hover inline-flex items-center justify-center px-6 py-3 bg-taobao text-white font-semibold rounded-full hover:bg-taobao/90 shadow-lg shadow-taobao/20">
-                                    <i class="fa fa-shopping-bag mr-2"></i>
-                                    淘宝店铺购买
-                                </a>
-                                <a href="https://m.tb.cn/h.hw2Fldc?tk=3qYn4mO71V9" target="_blank" class="buy-btn-hover inline-flex items-center justify-center px-6 py-3 bg-xianyu text-dark font-semibold rounded-full hover:bg-xianyu/90 shadow-lg shadow-xianyu/20">
-                                    <i class="fa fa-credit-card mr-2"></i>
-                                    闲鱼平台购买
-                                </a>
-                            </div>
-                        </div>
-                        <div class="p-6 bg-primary/10 rounded-lg border border-accent/10">
-                            <h4 class="text-xl font-semibold mb-4 flex items-center">
-                                <i class="fa fa-handshake-o text-accent mr-2"></i>
-                                批量合作
-                            </h4>
-                            <p class="text-light/80 mb-6">适合企业客户批量采购，提供定制化服务和技术支持</p>
-                            <!-- 2. 合作表单（ID不变，用于绑定提交事件） -->
-                            <form id="cooperation-form" class="space-y-4">
-                                <div>
-                                    <label for="name" class="block text-sm font-medium mb-1">您的姓名</label>
-                                    <input type="text" id="name" class="w-full px-4 py-2 bg-dark/50 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-light" placeholder="请输入姓名" required />
-                                </div>
-                                <div>
-                                    <label for="company" class="block text-sm font-medium mb-1">公司名称</label>
-                                    <input type="text" id="company" class="w-full px-4 py-2 bg-dark/50 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-light" placeholder="请输入公司名称" required />
-                                </div>
-                                <div>
-                                    <label for="email" class="block text-sm font-medium mb-1">电子邮箱</label>
-                                    <input type="email" id="email" class="w-full px-4 py-2 bg-dark/50 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-light" placeholder="请输入电子邮箱" required />
-                                </div>
-                                <div>
-                                    <label for="message" class="block text-sm font-medium mb-1">合作需求</label>
-                                    <textarea id="message" rows="3" class="w-full px-4 py-2 bg-dark/50 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-light" placeholder="请简要描述您的合作需求" required></textarea>
-                                </div>
-                                <!-- 3. 提交按钮（添加加载状态图标） -->
-                                <button type="submit" id="submit-btn" class="w-full px-6 py-3 bg-secondary text-white font-semibold rounded-full hover:bg-secondary/90 transition-all shadow-lg shadow-secondary/20">
-                                    <i class="fa fa-paper-plane mr-2"></i>
-                                    提交合作咨询
-                                </button>
-                            </form>
-                        </div>
-                    </div>
+                <div>
+                  <h4 class="font-semibold mb-1">公司地址</h4>
+                  <p class="text-light/80">无锡市梅村街道科技园1-1</p>
                 </div>
+              </div>
+              <div class="flex items-start">
+                <div
+                  class="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center mr-4 flex-shrink-0"
+                >
+                  <i class="fa fa-phone text-accent text-xl"></i>
+                </div>
+                <div>
+                  <h4 class="font-semibold mb-1">联系电话</h4>
+                  <p class="text-light/80">15852752613</p>
+                </div>
+              </div>
+              <div class="flex items-start">
+                <div
+                  class="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center mr-4 flex-shrink-0"
+                >
+                  <i class="fa fa-envelope text-accent text-xl"></i>
+                </div>
+                <div>
+                  <h4 class="font-semibold mb-1">电子邮箱</h4>
+                  <p class="text-light/80">zhangb188@qq.com</p>
+                  <p class="text-light/80">124933736@qq.com</p>
+                </div>
+              </div>
+              <div class="flex items-start">
+                <div
+                  class="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center mr-4 flex-shrink-0"
+                >
+                  <i class="fa fa-clock-o text-accent text-xl"></i>
+                </div>
+                <div>
+                  <h4 class="font-semibold mb-1">工作时间</h4>
+                  <p class="text-light/80">周一至周五: 9:00 - 18:00</p>
+                  <p class="text-light/80">周六: 10:00 - 16:00 (节假日除外)</p>
+                </div>
+              </div>
             </div>
+            <div class="mt-10">
+              <h4 class="font-semibold mb-4">关注我们</h4>
+              <div class="grid grid-cols-2 gap-6">
+                <div class="flex flex-col items-center">
+                  <a
+                    class="w-10 h-10 rounded-full bg-[#FE2C55]/20 flex items-center justify-center text-[#FE2C55] hover:bg-[#FE2C55] hover:text-white transition-colors duration-300 mb-3"
+                  >
+                    <i class="fa fa-book"></i>
+                  </a>
+                  <!-- 小红书二维码尺寸从w-48 h-48改为w-32 h-32 -->
+                  <div class="w-32 h-32 bg-white p-2 rounded-lg">
+                    <img
+                      src="xiaohongshu.webp"
+                      alt="小红书二维码"
+                      class="w-full h-full object-contain"
+                      loading="lazy"
+                    />
+                  </div>
+                </div>
+                <div class="flex flex-col items-center">
+                  <a
+                    class="w-10 h-10 rounded-full bg-[#07C160]/20 flex items-center justify-center text-[#07C160] hover:bg-[#07C160] hover:text-white transition-colors duration-300 mb-3"
+                  >
+                    <i class="fa fa-weixin"></i>
+                  </a>
+                  <!-- 微信二维码尺寸从w-48 h-48改为w-32 h-32 -->
+                  <div class="w-32 h-32 bg-white p-2 rounded-lg">
+                    <img
+                      src="weixin.webp"
+                      alt="微信二维码"
+                      class="w-full h-full object-contain"
+                      loading="lazy"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="bg-dark/60 backdrop-blur-sm p-8 rounded-xl border border-accent/20"
+          >
+            <h3 class="text-2xl font-semibold mb-6 text-accent">购买方式</h3>
+            <div class="space-y-8">
+              <div class="p-6 bg-primary/10 rounded-lg border border-accent/10">
+                <h4 class="text-xl font-semibold mb-4 flex items-center">
+                  <i class="fa fa-shopping-cart text-accent mr-2"></i>
+                  零售购买
+                </h4>
+                <p class="text-light/80 mb-6">
+                  适合个人用户或小批量采购需求，提供标准质保服务，支持平台担保交易
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <a
+                    href="https://e.tb.cn/h.hwbgmuSwm2PbCDg?tk=9Ijh4mORiU3"
+                    target="_blank"
+                    class="buy-btn-hover inline-flex items-center justify-center px-6 py-3 bg-taobao text-white font-semibold rounded-full hover:bg-taobao/90 shadow-lg shadow-taobao/20"
+                  >
+                    <i class="fa fa-shopping-bag mr-2"></i>
+                    淘宝店铺购买
+                  </a>
+                  <a
+                    href="https://m.tb.cn/h.hw2Fldc?tk=3qYn4mO71V9"
+                    target="_blank"
+                    class="buy-btn-hover inline-flex items-center justify-center px-6 py-3 bg-xianyu text-dark font-semibold rounded-full hover:bg-xianyu/90 shadow-lg shadow-xianyu/20"
+                  >
+                    <i class="fa fa-credit-card mr-2"></i>
+                    闲鱼平台购买
+                  </a>
+                </div>
+              </div>
+              <div class="p-6 bg-primary/10 rounded-lg border border-accent/10">
+                <h4 class="text-xl font-semibold mb-4 flex items-center">
+                  <i class="fa fa-handshake-o text-accent mr-2"></i>
+                  批量合作
+                </h4>
+                <p class="text-light/80 mb-6">
+                  适合企业客户批量采购，提供定制化服务和技术支持
+                </p>
+                <!-- 2. 合作表单（ID不变，用于绑定提交事件） -->
+                <form id="cooperation-form" class="space-y-4">
+                  <div>
+                    <label for="name" class="block text-sm font-medium mb-1"
+                      >您的姓名</label
+                    >
+                    <input
+                      type="text"
+                      id="name"
+                      class="w-full px-4 py-2 bg-dark/50 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-light"
+                      placeholder="请输入姓名"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label for="company" class="block text-sm font-medium mb-1"
+                      >公司名称</label
+                    >
+                    <input
+                      type="text"
+                      id="company"
+                      class="w-full px-4 py-2 bg-dark/50 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-light"
+                      placeholder="请输入公司名称"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label for="email" class="block text-sm font-medium mb-1"
+                      >电子邮箱</label
+                    >
+                    <input
+                      type="email"
+                      id="email"
+                      class="w-full px-4 py-2 bg-dark/50 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-light"
+                      placeholder="请输入电子邮箱"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label for="message" class="block text-sm font-medium mb-1"
+                      >合作需求</label
+                    >
+                    <textarea
+                      id="message"
+                      rows="3"
+                      class="w-full px-4 py-2 bg-dark/50 border border-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent text-light"
+                      placeholder="请简要描述您的合作需求"
+                      required
+                    ></textarea>
+                  </div>
+                  <!-- 3. 提交按钮（添加加载状态图标） -->
+                  <button
+                    type="submit"
+                    id="submit-btn"
+                    class="w-full px-6 py-3 bg-secondary text-white font-semibold rounded-full hover:bg-secondary/90 transition-all shadow-lg shadow-secondary/20"
+                  >
+                    <i class="fa fa-paper-plane mr-2"></i>
+                    提交合作咨询
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </section>
     <!-- 页脚 -->
     <footer class="py-10 bg-dark border-t border-accent/20">
-        <div class="container mx-auto px-6">
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <div class="mb-6 md:mb-0">
-                    <div class="flex items-center">
-                        <i class="fa fa-eye text-accent text-2xl mr-2"></i>
-                        <h2 class="text-xl font-bold">鹰眼系列 <span class="text-accent">X</span></h2>
-                    </div>
-                    <p class="text-light/60 mt-2">精准感知，智能探测</p>
-                </div>
-                <div class="text-light/80 text-sm mb-6 md:mb-0 flex items-center gap-6">
-                    <div class="flex items-center">
-                        <i class="fa fa-calendar-check-o text-accent mr-2"></i>
-                        <span>当天访问量：<span id="today-visits" class="text-accent font-medium">0</span></span>
-                    </div>
-                    <div class="flex items-center">
-                        <i class="fa fa-line-chart text-accent mr-2"></i>
-                        <span>累计访问量：<span id="total-visits" class="text-accent font-medium">0</span></span>
-                    </div>
-                </div>
-                <div class="mb-6 md:mb-0">
-                    <div class="flex items-center">
-                        <h2 class="text-xl font-bold">TechElite <span class="text-accent">Inc</span></h2>
-                    </div>
-                    <p class="text-light/60 mt-2">科技梦想，拼搏向前！</p>
-                </div>
+      <div class="container mx-auto px-6">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+          <div class="mb-6 md:mb-0">
+            <div class="flex items-center">
+              <i class="fa fa-eye text-accent text-2xl mr-2"></i>
+              <h2 class="text-xl font-bold">
+                鹰眼系列 <span class="text-accent">X</span>
+              </h2>
             </div>
+            <p class="text-light/60 mt-2">精准感知，智能探测</p>
+          </div>
+          <div
+            class="text-light/80 text-sm mb-6 md:mb-0 flex items-center gap-6"
+          >
+            <div class="flex items-center">
+              <i class="fa fa-calendar-check-o text-accent mr-2"></i>
+              <span
+                >当天访问量：<span
+                  id="today-visits"
+                  class="text-accent font-medium"
+                  >0</span
+                ></span
+              >
+            </div>
+            <div class="flex items-center">
+              <i class="fa fa-line-chart text-accent mr-2"></i>
+              <span
+                >累计访问量：<span
+                  id="total-visits"
+                  class="text-accent font-medium"
+                  >0</span
+                ></span
+              >
+            </div>
+          </div>
+          <div class="mb-6 md:mb-0">
+            <div class="flex items-center">
+              <h2 class="text-xl font-bold">
+                TechElite <span class="text-accent">Inc</span>
+              </h2>
+            </div>
+            <p class="text-light/60 mt-2">科技梦想，拼搏向前！</p>
+          </div>
         </div>
+      </div>
     </footer>
     <div id="toast" class="toast"></div>
     <!-- JavaScript -->
     <script>
-        // 页面加载完成后隐藏加载动画
-        window.addEventListener('load', function() {
-            setTimeout(function() { // 延迟0.5秒隐藏，确保体验流畅
-                const loader = document.getElementById('loader');
-                loader.classList.add('hidden');
-            }, 500);
-        });
-
-        // 导航栏滚动效果
-        window.addEventListener("scroll", function () {
-            const navbar = document.querySelector(".navbar");
-            if (window.scrollY > 50) {
-                navbar.classList.add("scrolled");
-            } else {
-                navbar.classList.remove("scrolled");
-            }
-        });
-        
-        // 访问量统计
-        function setCookie(name, value, days) {
-            let expires = "";
-            if (days) {
-                const date = new Date();
-                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-                expires = "; expires=" + date.toUTCString();
-            }
-            document.cookie = name + "=" + (value || "") + expires + "; path=/";
+      // 页面加载完成后隐藏加载动画
+      window.addEventListener("load", function () {
+        setTimeout(function () {
+          // 延迟0.5秒隐藏，确保体验流畅
+          const loader = document.getElementById("loader");
+          loader.classList.add("hidden");
+        }, 500);
+      });
+      // 导航栏滚动效果
+      window.addEventListener("scroll", function () {
+        const navbar = document.querySelector(".navbar");
+        if (window.scrollY > 50) {
+          navbar.classList.add("scrolled");
+        } else {
+          navbar.classList.remove("scrolled");
         }
-        function getCookie(name) {
-            const nameEQ = name + "=";
-            const ca = document.cookie.split(';');
-            for (let i = 0; i < ca.length; i++) {
-                let c = ca[i];
-                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-                if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+      });
+      // 4. LeanCloud API configuration
+      const APP_ID = "IJVvwum1w9ZG6FJLZmL7W6il-MdYXbMMI"; // Replace with your LeanCloud App ID
+      const APP_KEY = "JWhIjvNaRESRDqffLyjUnc2S"; // Replace with your LeanCloud App Key
+      AV.initialize(APP_ID, APP_KEY);
+      // Function to get today's date in YYYY-MM-DD format
+      function getTodayDate() {
+        const today = new Date();
+        return today.toISOString().split("T")[0];
+      }
+      // Function to update visit counts in LeanCloud
+      async function updateVisitCounts() {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const query = new AV.Query("VisitCount");
+        query.equalTo("date", today);
+
+        try {
+          const results = await query.find();
+          let visitRecord;
+          let isNewRecord = false;
+
+          if (results.length > 0) {
+            visitRecord = results[0];
+            // 先记录当前的todayVisits（用于后续计算）
+            const currentToday = visitRecord.get("todayVisits") || 0;
+            visitRecord.set("todayVisits", currentToday + 1); // 显式+1，避免increment的异步问题
+          } else {
+            visitRecord = new AV.Object("VisitCount");
+            visitRecord.set("date", today);
+            visitRecord.set("todayVisits", 1);
+            isNewRecord = true;
+          }
+
+          // 计算总访问量：所有历史记录的和 + 当前这次访问
+          const totalQuery = new AV.Query("VisitCount");
+          const allRecords = await totalQuery.find();
+
+          // 累加所有历史记录的todayVisits（不含当前记录的本次更新）
+          let currentTotal = allRecords.reduce((sum, record) => {
+            // 排除当前记录（如果是旧记录，避免重复计算）
+            if (record.id === visitRecord.id) {
+              return sum + (record.get("todayVisits") || 0);
             }
-            return null;
+            return sum + (record.get("todayVisits") || 0);
+          }, 0);
+
+          // 加上当前这次访问（新记录+1，旧记录也+1）
+          currentTotal += 1;
+
+          // 更新总访问量
+          visitRecord.set("totalVisits", currentTotal);
+
+          await visitRecord.save();
+
+          // 更新页面显示
+          document.getElementById("today-visits").textContent =
+            visitRecord.get("todayVisits");
+          document.getElementById("total-visits").textContent =
+            currentTotal.toLocaleString();
+
+          console.log("访问计数更新成功");
+        } catch (error) {
+          console.error("更新访问计数时出错:", error);
         }
-        function initVisitsCount() {
-            let todayVisits = parseInt(getCookie("todayVisits")) || 0;
-            let totalVisits = parseInt(getCookie("totalVisits")) || 0;
-            // Check if today is a new day
-            const today = new Date().toISOString().split('T')[0];
-            const lastVisitDate = getCookie("lastVisitDate");
-            if (lastVisitDate !== today) {
-                todayVisits = 0; // Reset today's visits if it's a new day
-                setCookie("lastVisitDate", today, 1);
-            }
-            todayVisits += 1; // Increment today's visits
-            totalVisits += 1; // Increment total visits
-            // Set cookies
-            setCookie("todayVisits", todayVisits, 1);
-            setCookie("totalVisits", totalVisits, 365); // Store total visits for 1 year
-            // Update the display
-            document.getElementById("today-visits").textContent = todayVisits;
-            document.getElementById("total-visits").textContent = totalVisits.toLocaleString(); // Format with thousands separator
-        }
-        // Initialize visit counts
-        initVisitsCount();
+      }
 
-        // 4. EmailJS 核心配置与表单提交逻辑
-        document.addEventListener('DOMContentLoaded', function() {
-            // --------------------------
-            // 关键：替换为你的 EmailJS 配置
-            const EMAILJS_USER_ID = "wE3hm6yaNgZMMSQBI";    // 你的 EmailJS 用户ID
-            const EMAILJS_SERVICE_ID = "service_tucg9oz"; // 你的 EmailJS 服务ID
-            const EMAILJS_TEMPLATE_ID = "template_ho8d8tf"; // 你的 EmailJS 模板ID
-            // --------------------------
-
-            // 初始化 EmailJS
-            emailjs.init(EMAILJS_USER_ID);
-
-            // 获取表单和按钮元素
-            const form = document.getElementById('cooperation-form');
-            const submitBtn = document.getElementById('submit-btn');
-            const toast = document.getElementById('toast');
-
-            // 表单提交事件
-            form.addEventListener('submit', function(e) {
-                e.preventDefault(); // 阻止表单默认刷新行为
-
-                // 按钮加载状态（防止重复提交）
-                submitBtn.disabled = true;
-                submitBtn.classList.add('btn-loading');
-                submitBtn.innerHTML = '<i class="fa fa-spinner mr-2"></i> 提交中...';
-
-                // 收集表单数据（与 EmailJS 模板变量对应）
-                const formData = {
-                    user_name: document.getElementById('name').value,    // 姓名（对应模板变量 {{user_name}}）
-                    user_company: document.getElementById('company').value, // 公司（对应模板变量 {{user_company}}）
-                    user_email: document.getElementById('email').value,    // 邮箱（对应模板变量 {{user_email}}）
-                    user_message: document.getElementById('message').value // 需求（对应模板变量 {{user_message}}）
-                };
-
-                // 发送邮件 via EmailJS
-                emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, formData)
-                    .then(function(response) {
-                        // 发送成功：显示成功提示 + 重置表单
-                        showToast('合作咨询提交成功！我们将尽快与您联系', 'success');
-                        form.reset(); // 清空表单
-                        console.log('邮件发送成功:', response);
-                    }, function(error) {
-                        // 发送失败：显示错误提示
-                        showToast('提交失败，请稍后重试或直接联系我们', 'error');
-                        console.error('邮件发送失败:', error);
-                    })
-                    .finally(function() {
-                        // 恢复按钮状态（无论成功/失败）
-                        submitBtn.disabled = false;
-                        submitBtn.classList.remove('btn-loading');
-                        submitBtn.innerHTML = '<i class="fa fa-paper-plane mr-2"></i> 提交合作咨询';
-                    });
+      // Initialize visit counts
+      updateVisitCounts();
+      // 4. EmailJS 核心配置与表单提交逻辑
+      document.addEventListener("DOMContentLoaded", function () {
+        // --------------------------
+        // 关键：替换为你的 EmailJS 配置
+        const EMAILJS_USER_ID = "wE3hm6yaNgZMMSQBI"; // 你的 EmailJS 用户ID
+        const EMAILJS_SERVICE_ID = "service_tucg9oz"; // 你的 EmailJS 服务ID
+        const EMAILJS_TEMPLATE_ID = "template_ho8d8tf"; // 你的 EmailJS 模板ID
+        // --------------------------
+        // 初始化 EmailJS
+        emailjs.init(EMAILJS_USER_ID);
+        // 获取表单和按钮元素
+        const form = document.getElementById("cooperation-form");
+        const submitBtn = document.getElementById("submit-btn");
+        const toast = document.getElementById("toast");
+        // 表单提交事件
+        form.addEventListener("submit", function (e) {
+          e.preventDefault(); // 阻止表单默认刷新行为
+          // 按钮加载状态（防止重复提交）
+          submitBtn.disabled = true;
+          submitBtn.classList.add("btn-loading");
+          submitBtn.innerHTML = '<i class="fa fa-spinner mr-2"></i> 提交中...';
+          // 收集表单数据（与 EmailJS 模板变量对应）
+          const formData = {
+            user_name: document.getElementById("name").value, // 姓名（对应模板变量 {{user_name}}）
+            user_company: document.getElementById("company").value, // 公司（对应模板变量 {{user_company}}）
+            user_email: document.getElementById("email").value, // 邮箱（对应模板变量 {{user_email}}）
+            user_message: document.getElementById("message").value, // 需求（对应模板变量 {{user_message}}）
+          };
+          // 发送邮件 via EmailJS
+          emailjs
+            .send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, formData)
+            .then(
+              function (response) {
+                // 发送成功：显示成功提示 + 重置表单
+                showToast("合作咨询提交成功！我们将尽快与您联系", "success");
+                form.reset(); // 清空表单
+                console.log("邮件发送成功:", response);
+              },
+              function (error) {
+                // 发送失败：显示错误提示
+                showToast("提交失败，请稍后重试或直接联系我们", "error");
+                console.error("邮件发送失败:", error);
+              }
+            )
+            .finally(function () {
+              // 恢复按钮状态（无论成功/失败）
+              submitBtn.disabled = false;
+              submitBtn.classList.remove("btn-loading");
+              submitBtn.innerHTML =
+                '<i class="fa fa-paper-plane mr-2"></i> 提交合作咨询';
             });
-
-            // 显示提示消息（复用原有 toast 组件）
-            function showToast(message, type) {
-                toast.textContent = message;
-                toast.className = `toast ${type}`; // 重置类名 + 添加类型（success/error）
-                toast.classList.add('show'); // 显示提示
-
-                // 3秒后自动隐藏
-                setTimeout(() => {
-                    toast.classList.remove('show');
-                }, 3000);
-            }
         });
+        // 显示提示消息（复用原有 toast 组件）
+        function showToast(message, type) {
+          toast.textContent = message;
+          toast.className = `toast ${type}`; // 重置类名 + 添加类型（success/error）
+          toast.classList.add("show"); // 显示提示
+          // 3秒后自动隐藏
+          setTimeout(() => {
+            toast.classList.remove("show");
+          }, 3000);
+        }
+      });
     </script>
-</body>
+  </body>
 </html>
